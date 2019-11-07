@@ -8,7 +8,7 @@ class User(AbstractUser):
     is_supervisor = models.BooleanField(default=False)
 
 
-class Subject(models.Model):
+class Language(models.Model):
     name = models.CharField(max_length=30)
     color = models.CharField(max_length=7, default='#007bff')
 
@@ -25,7 +25,10 @@ class Subject(models.Model):
 class Quiz(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=255)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='quizzes')
+    source_content = models.TextField('Original text')
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='quizzes')
+    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translate_from_language', null=True)
+    target_languages = models.ManyToManyField(Language, related_name='translate_to_language', blank=True)
 
     def __str__(self):
         return self.name
@@ -51,7 +54,7 @@ class Answer(models.Model):
 class Translator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
-    interests = models.ManyToManyField(Subject, related_name='interested_translators')
+    interests = models.ManyToManyField(Language, related_name='interested_translators')
 
     def get_unanswered_questions(self, quiz):
         answered_questions = self.quiz_answers \

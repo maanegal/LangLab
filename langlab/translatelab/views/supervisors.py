@@ -39,7 +39,7 @@ class QuizListView(ListView):
 
     def get_queryset(self):
         queryset = self.request.user.quizzes \
-            .select_related('subject') \
+            .select_related('language') \
             .annotate(questions_count=Count('questions', distinct=True)) \
             .annotate(taken_count=Count('taken_quizzes', distinct=True))
         return queryset
@@ -48,7 +48,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizCreateView(CreateView):
     model = Quiz
-    fields = ('name', 'subject', )
+    fields = ('name', 'language', )
     template_name = 'translatelab/supervisors/quiz_add_form.html'
 
     def form_valid(self, form):
@@ -62,7 +62,7 @@ class QuizCreateView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Quiz
-    fields = ('name', 'subject', )
+    fields = ('name', 'language', )
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 

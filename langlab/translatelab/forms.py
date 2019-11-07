@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import (Answer, Question, Translator, TranslatorAnswer, Subject, User)
+from .models import (Answer, Question, Translator, TranslatorAnswer, Language, User)
 
 
 class SupervisorSignUpForm(UserCreationForm):
@@ -20,7 +20,7 @@ class SupervisorSignUpForm(UserCreationForm):
 
 class TranslatorSignUpForm(UserCreationForm):
     interests = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.all(),
+        queryset=Language.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=True
     )

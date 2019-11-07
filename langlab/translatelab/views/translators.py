@@ -54,7 +54,7 @@ class QuizListView(ListView):
         translator = self.request.user.translator
         translator_interests = translator.interests.values_list('pk', flat=True)
         taken_quizzes = translator.quizzes.values_list('pk', flat=True)
-        queryset = Quiz.objects.filter(subject__in=translator_interests) \
+        queryset = Quiz.objects.filter(language__in=translator_interests) \
             .exclude(pk__in=taken_quizzes) \
             .annotate(questions_count=Count('questions')) \
             .filter(questions_count__gt=0)
@@ -69,7 +69,7 @@ class TakenQuizListView(ListView):
 
     def get_queryset(self):
         queryset = self.request.user.translator.taken_quizzes \
-            .select_related('quiz', 'quiz__subject') \
+            .select_related('quiz', 'quiz__language') \
             .order_by('quiz__name')
         return queryset
 

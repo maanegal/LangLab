@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import Subject
+from .models import Language
 
-admin.site.register(Subject)
+admin.site.register(Language)
