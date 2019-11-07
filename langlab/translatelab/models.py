@@ -24,8 +24,8 @@ class Language(models.Model):
 
 class Quiz(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
-    name = models.CharField(max_length=255)
-    source_content = models.TextField('Original text')
+    name = models.CharField(max_length=255)  # !! make this into the source name
+    source_content = models.TextField()
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='quizzes')
     source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translate_from_language', null=True)
     target_languages = models.ManyToManyField(Language, related_name='translate_to_language', blank=True)
@@ -54,9 +54,9 @@ class Answer(models.Model):
 class Translator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
-    interests = models.ManyToManyField(Language, related_name='interested_translators')
+    interests = models.ManyToManyField(Language, related_name='interested_translators')  # !! goal: languages spoken (add 'through' profiency)
 
-    def get_unanswered_questions(self, quiz):
+    def get_unanswered_questions(self, quiz):  # !! find out what this does
         answered_questions = self.quiz_answers \
             .filter(answer__question__quiz=quiz) \
             .values_list('answer__question__pk', flat=True)

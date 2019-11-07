@@ -48,7 +48,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizCreateView(CreateView):
     model = Quiz
-    fields = ('name', 'language', )
+    fields = ('name', 'source_content', 'language', )
     template_name = 'translatelab/supervisors/quiz_add_form.html'
 
     def form_valid(self, form):
@@ -62,7 +62,7 @@ class QuizCreateView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Quiz
-    fields = ('name', 'language', )
+    fields = ('name', 'source_content', 'language', )
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 
