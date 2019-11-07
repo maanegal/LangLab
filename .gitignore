@@ -1,0 +1,5 @@
+/venv/
+/.idea/
+/langlab/db.sqlite3
+/langlab/translatelab/migrations/
+/langlab/static/admin/
