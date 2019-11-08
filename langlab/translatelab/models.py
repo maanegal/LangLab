@@ -26,9 +26,8 @@ class Quiz(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
     name = models.CharField(max_length=255)  # !! make this into the source name
     source_content = models.TextField()
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='quizzes')
-    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translate_from_language', null=True)
-    target_languages = models.ManyToManyField(Language, related_name='translate_to_language', blank=True)
+    target_languages = models.ManyToManyField(Language, related_name='quizzes', blank=True)  # !! this should be multi
+    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='quizzes_org', null=True)
 
     def __str__(self):
         return self.name

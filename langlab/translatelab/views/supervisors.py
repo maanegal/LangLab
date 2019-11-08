@@ -39,7 +39,8 @@ class QuizListView(ListView):
 
     def get_queryset(self):
         queryset = self.request.user.quizzes \
-            .select_related('language') \
+            .prefetch_related('target_languages') \
+            .select_related('source_language') \
             .annotate(questions_count=Count('questions', distinct=True)) \
             .annotate(taken_count=Count('taken_quizzes', distinct=True))
         return queryset
@@ -48,7 +49,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizCreateView(CreateView):
     model = Quiz
-    fields = ('name', 'source_content', 'language', )
+    fields = ('name', 'source_content', 'target_languages', 'source_language', )
     template_name = 'translatelab/supervisors/quiz_add_form.html'
 
     def form_valid(self, form):
@@ -62,7 +63,7 @@ class QuizCreateView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Quiz
-    fields = ('name', 'source_content', 'language', )
+    fields = ('name', 'source_content', 'target_languages', 'source_language', )
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 
@@ -71,11 +72,11 @@ class QuizUpdateView(UpdateView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        '''
+        """
         This method is an implicit object-level permission management
         This view will only match the ids of existing quizzes that belongs
         to the logged in user.
-        '''
+        """
         return self.request.user.quizzes.all()
 
     def get_success_url(self):
