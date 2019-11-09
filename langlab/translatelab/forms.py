@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import (Answer, Question, Translator, TranslatorAnswer, Language, User)
+from .models import (Answer, Translation, Translator, TranslatorAnswer, Language, User, Task)
 
 
 class SupervisorSignUpForm(UserCreationForm):
@@ -19,7 +19,7 @@ class SupervisorSignUpForm(UserCreationForm):
 
 
 class TranslatorSignUpForm(UserCreationForm):
-    interests = forms.ModelMultipleChoiceField(
+    languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=True
@@ -34,22 +34,22 @@ class TranslatorSignUpForm(UserCreationForm):
         user.is_translator = True
         user.save()
         translator = Translator.objects.create(user=user)
-        translator.interests.add(*self.cleaned_data.get('interests'))
+        translator.languages.add(*self.cleaned_data.get('languages'))
         return user
 
 
-class TranslatorInterestsForm(forms.ModelForm):
+class TranslatorLanguagesForm(forms.ModelForm):
     class Meta:
         model = Translator
-        fields = ('interests', )
+        fields = ('languages', )
         widgets = {
-            'interests': forms.CheckboxSelectMultiple
+            'languages': forms.CheckboxSelectMultiple
         }
 
 
 class QuestionForm(forms.ModelForm):
     class Meta:
-        model = Question
+        model = Translation
         fields = ('text', )
 
 
@@ -82,3 +82,18 @@ class TakeQuizForm(forms.ModelForm):
         question = kwargs.pop('question')
         super().__init__(*args, **kwargs)
         self.fields['answer'].queryset = question.answers.order_by('text')
+
+
+class TaskEditForm(forms.ModelForm):
+    languages = forms.ModelMultipleChoiceField(
+        queryset=Language.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Lanky")
+
+    class Meta:
+        model = Task
+        fields = ('name', 'source_content', 'target_languages', 'source_language', )
+        widgets = {
+            'target_languages': forms.CheckboxSelectMultiple
+        }

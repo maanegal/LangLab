@@ -7,7 +7,7 @@ urlpatterns = [
 
     path('translators/', include(([
         path('', translators.QuizListView.as_view(), name='quiz_list'),
-        path('interests/', translators.TranslatorInterestsView.as_view(), name='translator_interests'),
+        path('languages/', translators.TranslatorLanguagesView.as_view(), name='translator_languages'),
         path('taken/', translators.TakenQuizListView.as_view(), name='taken_quiz_list'),
         path('quiz/<int:pk>/', translators.take_quiz, name='take_quiz'),
     ], 'translatelab'), namespace='translators')),

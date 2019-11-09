@@ -3,16 +3,16 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active" aria-current="page">My Quizzes</li>
+      <li class="breadcrumb-item active" aria-current="page">My tasks</li>
     </ol>
   </nav>
-  <h2 class="mb-3">My Quizzes</h2>
+  <h2 class="mb-3">My tasks</h2>
   <a href="{% url 'supervisors:quiz_add' %}" class="btn btn-primary mb-3" role="button">Add quiz</a>
   <div class="card">
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Quiz</th>
+          <th>Task</th>
           <th>Source languages</th>
           <th>Target languages</th>
           <th>Questions</th>
@@ -21,20 +21,20 @@
         </tr>
       </thead>
       <tbody>
-        {% for quiz in quizzes %}
+        {% for task in tasks %}
           <tr>
-            <td class="align-middle"><a href="{% url 'supervisors:quiz_change' quiz.pk %}">{{ quiz.name }}</a></td>
-            <td class="align-middle">{{ quiz.source_language }}</td>
-            <td class="align-middle">{% for lang in quiz.target_languages.all %}{{ lang.get_html_badge }}{% endfor %}</td>
-            <td class="align-middle">{{ quiz.questions_count }}</td>
-            <td class="align-middle">{{ quiz.taken_count }}</td>
+            <td class="align-middle"><a href="{% url 'supervisors:quiz_change' task.pk %}">{{ task.name }}</a></td>
+            <td class="align-middle">{{ task.source_language }}</td>
+            <td class="align-middle">{% for lang in task.target_languages.all %}{{ lang.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle">{{ task.questions_count }}</td>
+            <td class="align-middle">{{ task.taken_count }}</td>
             <td class="text-right">
-              <a href="{% url 'supervisors:quiz_results' quiz.pk %}" class="btn btn-primary">View results</a>
+              <a href="{% url 'supervisors:quiz_results' task.pk %}" class="btn btn-primary">View results</a>
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="5">You haven't created any quiz yet.</td>
+            <td class="bg-light text-center font-italic" colspan="5">You haven't created any task yet.</td>
           </tr>
         {% endfor %}
       </tbody>

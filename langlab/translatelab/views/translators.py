@@ -9,8 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
 
 from ..decorators import translator_required
-from ..forms import TranslatorInterestsForm, TranslatorSignUpForm, TakeQuizForm
-from ..models import Quiz, Translator, TakenQuiz, User
+from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TakeQuizForm
+from ..models import Task, Translator, TakenQuiz, User
 
 
 class TranslatorSignUpView(CreateView):
@@ -29,33 +29,33 @@ class TranslatorSignUpView(CreateView):
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
-class TranslatorInterestsView(UpdateView):
+class TranslatorLanguagesView(UpdateView):
     model = Translator
-    form_class = TranslatorInterestsForm
-    template_name = 'translatelab/translators/interests_form.html'
+    form_class = TranslatorLanguagesForm
+    template_name = 'translatelab/translators/languages_form.html'
     success_url = reverse_lazy('translators:quiz_list')
 
     def get_object(self):
         return self.request.user.translator
 
     def form_valid(self, form):
-        messages.success(self.request, 'Interests updated with success!')
+        messages.success(self.request, 'Languages updated with success!')
         return super().form_valid(form)
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
 class QuizListView(ListView):
-    model = Quiz
+    model = Task
     ordering = ('name', )
-    context_object_name = 'quizzes'
+    context_object_name = 'tasks'
     template_name = 'translatelab/translators/quiz_list.html'
 
     def get_queryset(self):
         translator = self.request.user.translator
-        translator_interests = translator.interests.values_list('pk', flat=True)
-        taken_quizzes = translator.quizzes.values_list('pk', flat=True)
-        queryset = Quiz.objects.filter(language__in=translator_interests) \
-            .exclude(pk__in=taken_quizzes) \
+        translator_languages = translator.languages.values_list('pk', flat=True)
+        taken_tasks = translator.tasks.values_list('pk', flat=True)
+        queryset = Task.objects.filter(language__in=translator_languages) \
+            .exclude(pk__in=taken_tasks) \
             .annotate(questions_count=Count('questions')) \
             .filter(questions_count__gt=0)
         return queryset
@@ -64,11 +64,11 @@ class QuizListView(ListView):
 @method_decorator([login_required, translator_required], name='dispatch')
 class TakenQuizListView(ListView):
     model = TakenQuiz
-    context_object_name = 'taken_quizzes'
+    context_object_name = 'taken_tasks'
     template_name = 'translatelab/translators/taken_quiz_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.translator.taken_quizzes \
+        queryset = self.request.user.translator.taken_tasks \
             .select_related('quiz', 'quiz__language') \
             .order_by('quiz__name')
         return queryset
@@ -77,10 +77,10 @@ class TakenQuizListView(ListView):
 @login_required
 @translator_required
 def take_quiz(request, pk):
-    quiz = get_object_or_404(Quiz, pk=pk)
+    quiz = get_object_or_404(Task, pk=pk)
     translator = request.user.translator
 
-    if translator.quizzes.filter(pk=pk).exists():
+    if translator.tasks.filter(pk=pk).exists():
         return render(request, 'translators/taken_quiz.html')
 
     total_questions = quiz.questions.count()

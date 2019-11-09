@@ -5,7 +5,7 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'supervisors:quiz_change_list' %}">My Quizzes</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:quiz_change_list' %}">My tasks</a></li>
       <li class="breadcrumb-item"><a href="{% url 'supervisors:quiz_change' quiz.pk %}">{{ quiz.name }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Results</li>
     </ol>
@@ -14,7 +14,7 @@
 
   <div class="card">
     <div class="card-header">
-      <strong>Taken Quizzes</strong>
+      <strong>Taken tasks</strong>
       <span class="badge badge-pill badge-primary float-right">Average Score: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
     </div>
     <table class="table mb-0">
@@ -26,7 +26,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for taken_quiz in taken_quizzes %}
+        {% for taken_quiz in taken_tasks %}
           <tr>
             <td>{{ taken_quiz.student.user.username }}</td>
             <td>{{ taken_quiz.date|naturaltime }}</td>
@@ -36,7 +36,7 @@
       </tbody>
     </table>
     <div class="card-footer text-muted">
-      Total respondents: <strong>{{ total_taken_quizzes }}</strong>
+      Total respondents: <strong>{{ total_taken_tasks }}</strong>
     </div>
   </div>
 {% endblock %}

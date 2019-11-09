@@ -22,28 +22,38 @@ class Language(models.Model):
         return mark_safe(html)
 
 
-class Quiz(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
-    name = models.CharField(max_length=255)  # !! make this into the source name
+class Task(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
     source_content = models.TextField()
-    target_languages = models.ManyToManyField(Language, related_name='quizzes', blank=True)  # !! this should be multi
-    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='quizzes_org', null=True)
+    target_languages = models.ManyToManyField(Language, related_name='tasks', blank=True)  # !! this should be multi
+    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_org', null=True)
+    time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    time_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 
-class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
-    text = models.CharField('Question', max_length=255)
+class Translation(models.Model):  # This will become the Translation model
+    quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='questions')  # !! rename: task
+    text = models.TextField()  # !! rename: translated text, make blank=True
+    validated_text = models.TextField(blank=True)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translations', null=True)
+    translator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='translations', null=True)
+    translation_time_started = models.DateTimeField(null=True, blank=True)
+    translation_time_finished = models.DateTimeField(null=True, blank=True)
+    validator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='validated_translations', null=True)
+    validation_time_started = models.DateTimeField(null=True, blank=True)
+    validation_time_finished = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.text
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField('Answer', max_length=255)
+    question = models.ForeignKey(Translation, on_delete=models.CASCADE, related_name='answers')
+    text = models.TextField()
     is_correct = models.BooleanField('Correct answer', default=False)
 
     def __str__(self):
@@ -52,8 +62,8 @@ class Answer(models.Model):
 
 class Translator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
-    interests = models.ManyToManyField(Language, related_name='interested_translators')  # !! goal: languages spoken (add 'through' profiency)
+    tasks = models.ManyToManyField(Task, through='TakenQuiz')
+    languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
 
     def get_unanswered_questions(self, quiz):  # !! find out what this does
         answered_questions = self.quiz_answers \
@@ -67,8 +77,8 @@ class Translator(models.Model):
 
 
 class TakenQuiz(models.Model):
-    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='taken_quizzes')
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='taken_quizzes')
+    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='taken_tasks')
+    quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='taken_tasks')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
 

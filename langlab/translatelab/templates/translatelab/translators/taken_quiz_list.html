@@ -6,17 +6,17 @@
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Quiz</th>
+          <th>Task</th>
           <th>Subject</th>
           <th>Score</th>
         </tr>
       </thead>
       <tbody>
-        {% for taken_quiz in taken_quizzes %}
+        {% for taken_task in taken_tasks %}
           <tr>
-            <td>{{ taken_quiz.quiz.name }}</td>
-            <td>{{ taken_quiz.quiz.subject.get_html_badge }}</td>
-            <td>{{ taken_quiz.score }}</td>
+            <td>{{ taken_task.quiz.name }}</td>
+            <td>{{ taken_task.quiz.subject.get_html_badge }}</td>
+            <td>{{ taken_task.score }}</td>
           </tr>
         {% empty %}
           <tr>

@@ -11,8 +11,8 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from ..decorators import supervisor_required
-from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm
-from ..models import Answer, Question, Quiz, User
+from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm, TaskEditForm
+from ..models import Answer, Translation, Task, User
 
 
 class SupervisorSignUpView(CreateView):
@@ -32,38 +32,42 @@ class SupervisorSignUpView(CreateView):
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizListView(ListView):
-    model = Quiz
+    model = Task
     ordering = ('name', )
-    context_object_name = 'quizzes'
+    context_object_name = 'tasks'
     template_name = 'translatelab/supervisors/quiz_change_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.quizzes \
+        queryset = self.request.user.tasks \
             .prefetch_related('target_languages') \
             .select_related('source_language') \
             .annotate(questions_count=Count('questions', distinct=True)) \
-            .annotate(taken_count=Count('taken_quizzes', distinct=True))
+            .annotate(taken_count=Count('taken_tasks', distinct=True))
         return queryset
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizCreateView(CreateView):
-    model = Quiz
-    fields = ('name', 'source_content', 'target_languages', 'source_language', )
+    model = Task
+    form_class = TaskEditForm
     template_name = 'translatelab/supervisors/quiz_add_form.html'
 
     def form_valid(self, form):
-        quiz = form.save(commit=False)
-        quiz.owner = self.request.user
-        quiz.save()
+        task = form.save(commit=False)
+        task.owner = self.request.user
+        # !! This is where processing will be done
+        print(form.cleaned_data['lang'])
+        # for the objects selected in target_langs, create Translation (Question) objects
+        task.save()
+        form.save_m2m()  # save the many-to-many data for the form
         messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
-        return redirect('supervisors:quiz_change', quiz.pk)
+        return redirect('supervisors:quiz_change', task.pk)
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizUpdateView(UpdateView):
-    model = Quiz
-    fields = ('name', 'source_content', 'target_languages', 'source_language', )
+    model = Task
+    form_class = TaskEditForm
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 
@@ -74,10 +78,10 @@ class QuizUpdateView(UpdateView):
     def get_queryset(self):
         """
         This method is an implicit object-level permission management
-        This view will only match the ids of existing quizzes that belongs
+        This view will only match the ids of existing tasks that belongs
         to the logged in user.
         """
-        return self.request.user.quizzes.all()
+        return self.request.user.tasks.all()
 
     def get_success_url(self):
         return reverse('supervisors:quiz_change', kwargs={'pk': self.object.pk})
@@ -85,7 +89,7 @@ class QuizUpdateView(UpdateView):
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizDeleteView(DeleteView):
-    model = Quiz
+    model = Task
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_delete_confirm.html'
     success_url = reverse_lazy('supervisors:quiz_change_list')
@@ -96,30 +100,30 @@ class QuizDeleteView(DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.request.user.quizzes.all()
+        return self.request.user.tasks.all()
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizResultsView(DetailView):
-    model = Quiz
+    model = Task
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_results.html'
 
     def get_context_data(self, **kwargs):
         quiz = self.get_object()
-        taken_quizzes = quiz.taken_quizzes.select_related('translator__user').order_by('-date')
-        total_taken_quizzes = taken_quizzes.count()
-        quiz_score = quiz.taken_quizzes.aggregate(average_score=Avg('score'))
+        taken_tasks = quiz.taken_tasks.select_related('translator__user').order_by('-date')
+        total_taken_tasks = taken_tasks.count()
+        quiz_score = quiz.taken_tasks.aggregate(average_score=Avg('score'))
         extra_context = {
-            'taken_quizzes': taken_quizzes,
-            'total_taken_quizzes': total_taken_quizzes,
+            'taken_tasks': taken_tasks,
+            'total_taken_tasks': total_taken_tasks,
             'quiz_score': quiz_score
         }
         kwargs.update(extra_context)
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return self.request.user.quizzes.all()
+        return self.request.user.tasks.all()
 
 
 @login_required
@@ -129,7 +133,7 @@ def question_add(request, pk):
     # by the owner, which is the logged in user, we are protecting
     # this view at the object-level. Meaning only the owner of
     # quiz will be able to add questions to it.
-    quiz = get_object_or_404(Quiz, pk=pk, owner=request.user)
+    quiz = get_object_or_404(Task, pk=pk, owner=request.user)
 
     if request.method == 'POST':
         form = QuestionForm(request.POST)
@@ -154,11 +158,11 @@ def question_change(request, quiz_pk, question_pk):
     # change its details and also only questions that belongs to this
     # specific quiz can be changed via this url (in cases where the
     # user might have forged/player with the url params.
-    quiz = get_object_or_404(Quiz, pk=quiz_pk, owner=request.user)
-    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+    quiz = get_object_or_404(Task, pk=quiz_pk, owner=request.user)
+    question = get_object_or_404(Translation, pk=question_pk, quiz=quiz)
 
     AnswerFormSet = inlineformset_factory(
-        Question,  # parent model
+        Translation,  # parent model
         Answer,  # base model
         formset=BaseAnswerInlineFormSet,
         fields=('text', 'is_correct'),
@@ -191,7 +195,7 @@ def question_change(request, quiz_pk, question_pk):
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuestionDeleteView(DeleteView):
-    model = Question
+    model = Translation
     context_object_name = 'question'
     template_name = 'translatelab/supervisors/question_delete_confirm.html'
     pk_url_kwarg = 'question_pk'
@@ -207,7 +211,7 @@ class QuestionDeleteView(DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Question.objects.filter(quiz__owner=self.request.user)
+        return Translation.objects.filter(quiz__owner=self.request.user)
 
     def get_success_url(self):
         question = self.get_object()
