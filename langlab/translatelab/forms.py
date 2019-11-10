@@ -84,7 +84,7 @@ class TakeQuizForm(forms.ModelForm):
         self.fields['answer'].queryset = question.answers.order_by('text')
 
 
-class TaskEditForm(forms.ModelForm):
+class TaskEditForm(forms.ModelForm):  # !! make a separate for update, with fewer fields
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.all(),
         required=False,

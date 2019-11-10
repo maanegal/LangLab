@@ -12,7 +12,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 
 from ..decorators import supervisor_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm, TaskEditForm
-from ..models import Answer, Translation, Task, User
+from ..models import Answer, Translation, Task, User, Language
 
 
 class SupervisorSignUpView(CreateView):
@@ -55,10 +55,13 @@ class QuizCreateView(CreateView):
     def form_valid(self, form):
         task = form.save(commit=False)
         task.owner = self.request.user
+
+        #task.time_created =
         # !! This is where processing will be done
-        print(form.cleaned_data['lang'])
         # for the objects selected in target_langs, create Translation (Question) objects
         task.save()
+        for lang in form.cleaned_data['languages']:
+            t = task.questions.create(language=lang)
         form.save_m2m()  # save the many-to-many data for the form
         messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
         return redirect('supervisors:quiz_change', task.pk)
@@ -72,7 +75,11 @@ class QuizUpdateView(UpdateView):
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 
     def get_context_data(self, **kwargs):
-        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
+        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))  # !! this is not directly used anymore
+        kwargs['other_target_languages'] = Language.objects\
+            .exclude(tasks_target__id=self.get_object().id)\
+            .exclude(tasks_source__id=self.get_object().id)
+        # this gets target languages not selected for this task
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):

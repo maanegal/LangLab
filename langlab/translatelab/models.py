@@ -22,12 +22,12 @@ class Language(models.Model):
         return mark_safe(html)
 
 
-class Task(models.Model):
+class Task(models.Model):  # used to be quiz
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
     source_content = models.TextField()
-    target_languages = models.ManyToManyField(Language, related_name='tasks', blank=True)  # !! this should be multi
-    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_org', null=True)
+    target_languages = models.ManyToManyField(Language, related_name='tasks_target', blank=True)
+    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_source', null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     time_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -35,7 +35,7 @@ class Task(models.Model):
         return self.name
 
 
-class Translation(models.Model):  # This will become the Translation model
+class Translation(models.Model):  # Used to be Question
     quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='questions')  # !! rename: task
     text = models.TextField()  # !! rename: translated text, make blank=True
     validated_text = models.TextField(blank=True)
