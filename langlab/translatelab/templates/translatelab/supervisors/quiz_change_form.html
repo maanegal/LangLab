@@ -11,7 +11,6 @@
   </nav>
   <h2 class="mb-3">
     {{ quiz.name }}
-    <a href="{% url 'supervisors:quiz_results' quiz.pk %}" class="btn btn-primary float-right">View results</a>
   </h2>
   <div class="row mb-3">
     <div class="col-md-6 col-sm-8 col-12">
@@ -24,20 +23,23 @@
       </form>
     </div>
   </div>
-    {% for ass in other_target_languages %}
-      <p>{{ass.name}} - </p>
-    {% endfor %}
   <div class="card">
     <div class="card-header">
       <div class="row">
-        <div class="col-8">
-          <strong>Translated text</strong>
-        </div>
         <div class="col-2">
           <strong>Language</strong>
         </div>
+        <div class="col-3">
+          <strong>Translated text</strong>
+        </div>
         <div class="col-2">
-          <strong>Delete</strong>
+          <strong>Translated</strong>
+        </div>
+        <div class="col-2">
+          <strong>Validated</strong>
+        </div>
+        <div class="col-3">
+          <strong>Operations</strong>
         </div>
       </div>
     </div>
@@ -45,14 +47,33 @@
       {% for translation in questions %}
         <div class="list-group-item">
           <div class="row">
-            <div class="col-8">
-              <a href="{% url 'supervisors:question_change' quiz.pk translation.pk %}">{{ translation.text }}</a>
-            </div>
             <div class="col-2">
               {{ translation.language }}
             </div>
-            <div class="col-2">
-              <a href="{% url 'supervisors:question_delete' quiz.pk translation.pk %}" class="btn btn-danger float-right">Delete</a>
+            <div class="col-3">
+              {% if translation.text %}
+                "{{ translation.text }}"
+              {% else %}
+                Not translated yet
+              {% endif %}
+            </div>
+          <div class="col-2">
+              {% if translation.translation_time_finished %}
+                Yes
+              {% else %}
+                No
+              {% endif %}
+          </div>
+          <div class="col-2">
+              {% if translation.validation_time_finished %}
+                Yes
+              {% else %}
+                No
+              {% endif %}
+          </div>
+            <div class="col-3">
+              <a href="{% url 'supervisors:question_delete' quiz.pk translation.pk %}" class="btn btn-danger">Delete</a>
+              <a href="{% url 'supervisors:question_change' quiz.pk translation.pk %}" class="btn btn-success">Edit</a>
             </div>
           </div>
         </div>
@@ -63,4 +84,11 @@
       {% endfor %}
     </div>
   </div>
+  <br>
+  {% if other_target_languages %}
+  <strong>Add more languages:</strong>
+    {% for olang in other_target_languages %}
+      <a href="{% url 'supervisors:question_add' quiz.pk olang.pk %}" class="btn btn-primary btn-sm">{{olang.name}}</a>
+    {% endfor %}
+  {% endif %}
 {% endblock %}

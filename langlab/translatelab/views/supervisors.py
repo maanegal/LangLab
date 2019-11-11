@@ -11,7 +11,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from ..decorators import supervisor_required
-from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm, TaskEditForm
+from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm
 from ..models import Answer, Translation, Task, User, Language
 
 
@@ -49,7 +49,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizCreateView(CreateView):
     model = Task
-    form_class = TaskEditForm
+    form_class = TaskCreateForm
     template_name = 'translatelab/supervisors/quiz_add_form.html'
 
     def form_valid(self, form):
@@ -61,7 +61,8 @@ class QuizCreateView(CreateView):
         # for the objects selected in target_langs, create Translation (Question) objects
         task.save()
         for lang in form.cleaned_data['languages']:
-            t = task.questions.create(language=lang)
+            if not lang == task.source_language:  # filter out the source language
+                t = task.questions.create(language=lang)
         form.save_m2m()  # save the many-to-many data for the form
         messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
         return redirect('supervisors:quiz_change', task.pk)
@@ -70,14 +71,14 @@ class QuizCreateView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Task
-    form_class = TaskEditForm
+    form_class = TaskUpdateForm
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_change_form.html'
 
     def get_context_data(self, **kwargs):
         kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))  # !! this is not directly used anymore
         kwargs['other_target_languages'] = Language.objects\
-            .exclude(tasks_target__id=self.get_object().id)\
+            .exclude(translations__quiz__id=self.get_object().id)\
             .exclude(tasks_source__id=self.get_object().id)
         # this gets target languages not selected for this task
         return super().get_context_data(**kwargs)
@@ -135,27 +136,21 @@ class QuizResultsView(DetailView):
 
 @login_required
 @supervisor_required
-def question_add(request, pk):
+def question_add(request, pk, language_pk):
     # By filtering the quiz by the url keyword argument `pk` and
     # by the owner, which is the logged in user, we are protecting
     # this view at the object-level. Meaning only the owner of
     # quiz will be able to add questions to it.
-    quiz = get_object_or_404(Task, pk=pk, owner=request.user)
+    task = get_object_or_404(Task, pk=pk, owner=request.user)
+    lang = Language.objects.get(pk=language_pk)
 
-    if request.method == 'POST':
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.quiz = quiz
-            question.save()
-            messages.success(request, 'You may now add answers/options to the question.')
-            return redirect('supervisors:question_change', quiz.pk, question.pk)
-    else:
-        form = QuestionForm()
+    translation = Translation(quiz=task, language=lang)
+    translation.save()
 
-    return render(request, 'translatelab/supervisors/question_add_form.html', {'quiz': quiz, 'form': form})
+    return redirect('supervisors:quiz_change', task.pk)
 
 
+# Make a version of this for translators
 @login_required
 @supervisor_required
 def question_change(request, quiz_pk, question_pk):
@@ -168,35 +163,20 @@ def question_change(request, quiz_pk, question_pk):
     quiz = get_object_or_404(Task, pk=quiz_pk, owner=request.user)
     question = get_object_or_404(Translation, pk=question_pk, quiz=quiz)
 
-    AnswerFormSet = inlineformset_factory(
-        Translation,  # parent model
-        Answer,  # base model
-        formset=BaseAnswerInlineFormSet,
-        fields=('text', 'is_correct'),
-        min_num=2,
-        validate_min=True,
-        max_num=10,
-        validate_max=True
-    )
-
     if request.method == 'POST':
         form = QuestionForm(request.POST, instance=question)
-        formset = AnswerFormSet(request.POST, instance=question)
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid():
             with transaction.atomic():
                 form.save()
-                formset.save()
             messages.success(request, 'Question and answers saved with success!')
             return redirect('supervisors:quiz_change', quiz.pk)
     else:
         form = QuestionForm(instance=question)
-        formset = AnswerFormSet(instance=question)
 
     return render(request, 'translatelab/supervisors/question_change_form.html', {
         'quiz': quiz,
         'question': question,
         'form': form,
-        'formset': formset
     })
 
 

@@ -6,8 +6,9 @@
       <li class="breadcrumb-item active" aria-current="page">My tasks</li>
     </ol>
   </nav>
-  <h2 class="mb-3">My tasks</h2>
-  <a href="{% url 'supervisors:quiz_add' %}" class="btn btn-primary mb-3" role="button">Add quiz</a>
+  <h2 class="mb-3">My tasks
+    <a href="{% url 'supervisors:quiz_add' %}" class="btn btn-primary float-right" role="button">Add task</a>
+  </h2>
   <div class="card">
     <table class="table mb-0">
       <thead>
@@ -16,8 +17,6 @@
           <th>Source languages</th>
           <th>Target languages</th>
           <th>Questions</th>
-          <th>Taken</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -25,12 +24,8 @@
           <tr>
             <td class="align-middle"><a href="{% url 'supervisors:quiz_change' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle">{{ task.source_language }}</td>
-            <td class="align-middle">{% for lang in task.target_languages.all %}{{ lang.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle">{% for lang in task.questions.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
             <td class="align-middle">{{ task.questions_count }}</td>
-            <td class="align-middle">{{ task.taken_count }}</td>
-            <td class="text-right">
-              <a href="{% url 'supervisors:quiz_results' task.pk %}" class="btn btn-primary">View results</a>
-            </td>
           </tr>
         {% empty %}
           <tr>

@@ -10,7 +10,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from ..decorators import translator_required
 from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TakeQuizForm
-from ..models import Task, Translator, TakenQuiz, User
+from ..models import Task, Translator, Translation, TakenQuiz, User
 
 
 class TranslatorSignUpView(CreateView):
@@ -45,19 +45,17 @@ class TranslatorLanguagesView(UpdateView):
 
 @method_decorator([login_required, translator_required], name='dispatch')
 class QuizListView(ListView):
-    model = Task
+    model = Translation
     ordering = ('name', )
-    context_object_name = 'tasks'
+    context_object_name = 'translations'
     template_name = 'translatelab/translators/quiz_list.html'
 
     def get_queryset(self):
         translator = self.request.user.translator
         translator_languages = translator.languages.values_list('pk', flat=True)
-        taken_tasks = translator.tasks.values_list('pk', flat=True)
-        queryset = Task.objects.filter(language__in=translator_languages) \
-            .exclude(pk__in=taken_tasks) \
-            .annotate(questions_count=Count('questions')) \
-            .filter(questions_count__gt=0)
+
+        queryset = Translation.objects.filter(language__in=translator_languages) \
+            .exclude(translator__isnull=False)
         return queryset
 
 

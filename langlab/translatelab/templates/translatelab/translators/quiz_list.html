@@ -8,16 +8,14 @@
         <tr>
           <th>Task</th>
           <th>Languages</th>
-          <th>Length</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        {% for task in tasks %}
+        {% for translation in translations %}
           <tr>
-            <td class="align-middle">{{ task.name }}</td>
-            <td class="align-middle">{% for lang in task.target_languages.all %}{{ lang.get_html_badge }}{% endfor %}</td>
-            <td class="align-middle">{{ task.questions_count }} questions</td>
+            <td class="align-middle">{{ translation.quiz.name }}</td>
+            <td class="align-middle">{{ translation.language.get_html_badge }}</td>
             <td class="text-right">
               <a href="{% url 'translators:take_quiz' task.pk %}" class="btn btn-primary">Start task</a>
             </td>
