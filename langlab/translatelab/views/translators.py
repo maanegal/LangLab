@@ -92,20 +92,18 @@ def translate_task(request, pk):
     translation.translator = translator
     translation.translation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
     translation.save()
-    print('saks')
     if request.method == 'POST':
         form = TranslationForm(request.POST, instance=translation)
         if form.is_valid():
             with transaction.atomic():
-                translator_answer = form.save(commit=False)
-                translator_answer.translation_time_finished = datetime.now()
-                translator_answer.save()
+                finished_translation = form.save(commit=False)
+                finished_translation.translation_time_finished = datetime.now()
+                finished_translation.save()
                 form.save_m2m()
             return redirect('translators:quiz_list')
             # !! give a notice to the translator
 
     else:
-        print('fuck me twice')
         form = TranslationForm(instance=translation)
 
     return render(request, 'translatelab/translators/take_quiz_form.html', {

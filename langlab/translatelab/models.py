@@ -32,9 +32,9 @@ class Translator(models.Model):
 
 
 class Task(models.Model):  # used to be quiz
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')  # !! rename
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
-    source_content = models.TextField()
+    source_content = models.TextField()  # !! should probably be called source_text
     target_languages = models.ManyToManyField(Language, related_name='tasks_target', blank=True)
     source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_source', null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -68,16 +68,3 @@ class Answer(models.Model):
     def __str__(self):
         return self.text
 
-
-'''
-class TakenQuiz(models.Model):
-    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='taken_tasks')
-    quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='taken_tasks')
-    score = models.FloatField()
-    date = models.DateTimeField(auto_now_add=True)
-'''
-
-
-class TranslatorAnswer(models.Model):
-    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='quiz_answers')
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
