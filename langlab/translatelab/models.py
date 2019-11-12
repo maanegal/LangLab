@@ -22,6 +22,15 @@ class Language(models.Model):
         return mark_safe(html)
 
 
+class Translator(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    # tasks = models.ManyToManyField(Task, through='TakenQuiz')  # remove this
+    languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
+
+    def __str__(self):
+        return self.user.username
+
+
 class Task(models.Model):  # used to be quiz
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
@@ -40,7 +49,7 @@ class Translation(models.Model):  # Used to be Question
     text = models.TextField()  # !! rename: translated text, make blank=True
     validated_text = models.TextField(blank=True)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translations', null=True)
-    translator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='translations', null=True)
+    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='translations', null=True)
     translation_time_started = models.DateTimeField(null=True, blank=True)
     translation_time_finished = models.DateTimeField(null=True, blank=True)
     validator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='validated_translations', null=True)
@@ -60,27 +69,13 @@ class Answer(models.Model):
         return self.text
 
 
-class Translator(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    tasks = models.ManyToManyField(Task, through='TakenQuiz')
-    languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
-
-    def get_unanswered_questions(self, quiz):  # !! find out what this does
-        answered_questions = self.quiz_answers \
-            .filter(answer__question__quiz=quiz) \
-            .values_list('answer__question__pk', flat=True)
-        questions = quiz.questions.exclude(pk__in=answered_questions).order_by('text')
-        return questions
-
-    def __str__(self):
-        return self.user.username
-
-
+'''
 class TakenQuiz(models.Model):
     translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='taken_tasks')
     quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='taken_tasks')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
+'''
 
 
 class TranslatorAnswer(models.Model):

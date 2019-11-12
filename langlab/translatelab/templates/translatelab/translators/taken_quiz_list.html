@@ -7,16 +7,14 @@
       <thead>
         <tr>
           <th>Task</th>
-          <th>Subject</th>
-          <th>Score</th>
+          <th>Source text</th>
         </tr>
       </thead>
       <tbody>
-        {% for taken_task in taken_tasks %}
+        {% for translation in translations %}
           <tr>
-            <td>{{ taken_task.quiz.name }}</td>
-            <td>{{ taken_task.quiz.subject.get_html_badge }}</td>
-            <td>{{ taken_task.score }}</td>
+            <td>{{ translation.quiz.name }}</td>
+            <td>{{ translation.quiz.source_content }}</td>
           </tr>
         {% empty %}
           <tr>

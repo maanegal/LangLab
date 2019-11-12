@@ -7,10 +7,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
+from datetime import datetime
 
 from ..decorators import translator_required
-from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TakeQuizForm
-from ..models import Task, Translator, Translation, TakenQuiz, User
+from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TranslationForm
+from ..models import Task, Translator, Translation, User
 
 
 class TranslatorSignUpView(CreateView):
@@ -44,7 +45,7 @@ class TranslatorLanguagesView(UpdateView):
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
-class QuizListView(ListView):
+class TaskListView(ListView):
     model = Translation
     ordering = ('name', )
     context_object_name = 'translations'
@@ -60,57 +61,54 @@ class QuizListView(ListView):
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
-class TakenQuizListView(ListView):
-    model = TakenQuiz
-    context_object_name = 'taken_tasks'
+class PerformedTranslationsListView(ListView):
+    model = Translation
+    context_object_name = 'translations'
     template_name = 'translatelab/translators/taken_quiz_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.translator.taken_tasks \
-            .select_related('quiz', 'quiz__language') \
+        queryset = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
+            .select_related('quiz') \
             .order_by('quiz__name')
         return queryset
 
 
 @login_required
 @translator_required
-def take_quiz(request, pk):
-    quiz = get_object_or_404(Task, pk=pk)
+def translate_task(request, pk):
+    translation = get_object_or_404(Translation, pk=pk)
     translator = request.user.translator
 
-    if translator.tasks.filter(pk=pk).exists():
-        return render(request, 'translators/taken_quiz.html')
+    # If this translator has performed this translation earlier
+    if translator.translations.filter(pk=pk).exists():
+        return render(request, 'translatelab/translators/taken_quiz_list.html')
 
-    total_questions = quiz.questions.count()
-    unanswered_questions = translator.get_unanswered_questions(quiz)
-    total_unanswered_questions = unanswered_questions.count()
-    progress = 100 - round(((total_unanswered_questions - 1) / total_questions) * 100)
-    question = unanswered_questions.first()
+    # If another translator has accepted the task already, redirect back to list
+    if translation.translator and translation.translator.filter(pk__isnull=False):
+        return redirect('translators:quiz_list')
+        # !! note: give some error message/explanation here
 
+    # Now, the translator has accepted the task. Register the information
+    translation.translator = translator
+    translation.translation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
+    translation.save()
+    print('saks')
     if request.method == 'POST':
-        form = TakeQuizForm(question=question, data=request.POST)
+        form = TranslationForm(request.POST, instance=translation)
         if form.is_valid():
             with transaction.atomic():
                 translator_answer = form.save(commit=False)
-                translator_answer.translator = translator
+                translator_answer.translation_time_finished = datetime.now()
                 translator_answer.save()
-                if translator.get_unanswered_questions(quiz).exists():
-                    return redirect('translators:take_quiz', pk)
-                else:
-                    correct_answers = translator.quiz_answers.filter(answer__question__quiz=quiz, answer__is_correct=True).count()
-                    score = round((correct_answers / total_questions) * 100.0, 2)
-                    TakenQuiz.objects.create(translator=translator, quiz=quiz, score=score)
-                    if score < 50.0:
-                        messages.warning(request, 'Better luck next time! Your score for the quiz %s was %s.' % (quiz.name, score))
-                    else:
-                        messages.success(request, 'Congratulations! You completed the quiz %s with success! You scored %s points.' % (quiz.name, score))
-                    return redirect('translators:quiz_list')
+                form.save_m2m()
+            return redirect('translators:quiz_list')
+            # !! give a notice to the translator
+
     else:
-        form = TakeQuizForm(question=question)
+        print('fuck me twice')
+        form = TranslationForm(instance=translation)
 
     return render(request, 'translatelab/translators/take_quiz_form.html', {
-        'quiz': quiz,
-        'question': question,
+        'translation': translation,
         'form': form,
-        'progress': progress
     })

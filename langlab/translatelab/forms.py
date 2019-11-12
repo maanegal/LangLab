@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import (Answer, Translation, Translator, TranslatorAnswer, Language, User, Task)
+from .models import (Translation, Translator, Language, User, Task)
 
 
 class SupervisorSignUpForm(UserCreationForm):
@@ -47,7 +47,7 @@ class TranslatorLanguagesForm(forms.ModelForm):
         }
 
 
-class QuestionForm(forms.ModelForm):
+class TranslationForm(forms.ModelForm):
     class Meta:
         model = Translation
         fields = ('text', )
@@ -66,22 +66,12 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
         if not has_one_correct_answer:
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
-
+'''
 class TakeQuizForm(forms.ModelForm):
-    answer = forms.ModelChoiceField(
-        queryset=Answer.objects.none(),
-        widget=forms.RadioSelect(),
-        required=True,
-        empty_label=None)
-
     class Meta:
-        model = TranslatorAnswer
-        fields = ('answer', )
-
-    def __init__(self, *args, **kwargs):
-        question = kwargs.pop('question')
-        super().__init__(*args, **kwargs)
-        self.fields['answer'].queryset = question.answers.order_by('text')
+        model = Translation
+        fields = ('text', )
+'''
 
 
 class TaskCreateForm(forms.ModelForm):  # !! make a separate for update, with fewer fields

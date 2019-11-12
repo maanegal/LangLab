@@ -3,11 +3,12 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h2 class="mb-3">{{ quiz.name }}</h2>
-  <p class="lead">{{ question.text }}</p>
-  <form method="post" novalidate>
+  <h2 class="mb-3">{{ translation.quiz.name }}</h2>
+  <p class="lead">tt: {{ translation.quiz.source_content }}</p>
+  <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
-    <button type="submit" class="btn btn-primary">Next →</button>
+    <button type="submit" class="btn btn-success">Save and finish</button>
+    <a href="{% url 'translators:quiz_list' %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
   </form>
 {% endblock %}

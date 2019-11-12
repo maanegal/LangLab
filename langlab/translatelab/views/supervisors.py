@@ -11,7 +11,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
 from ..decorators import supervisor_required
-from ..forms import BaseAnswerInlineFormSet, QuestionForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm
+from ..forms import BaseAnswerInlineFormSet, TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm
 from ..models import Answer, Translation, Task, User, Language
 
 
@@ -31,7 +31,7 @@ class SupervisorSignUpView(CreateView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
-class QuizListView(ListView):
+class TaskListView(ListView):
     model = Task
     ordering = ('name', )
     context_object_name = 'tasks'
@@ -40,14 +40,12 @@ class QuizListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.tasks \
             .prefetch_related('target_languages') \
-            .select_related('source_language') \
-            .annotate(questions_count=Count('questions', distinct=True)) \
-            .annotate(taken_count=Count('taken_tasks', distinct=True))
+            .select_related('source_language')
         return queryset
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
-class QuizCreateView(CreateView):
+class TaskCreateView(CreateView):
     model = Task
     form_class = TaskCreateForm
     template_name = 'translatelab/supervisors/quiz_add_form.html'
@@ -69,7 +67,7 @@ class QuizCreateView(CreateView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
-class QuizUpdateView(UpdateView):
+class TaskUpdateView(UpdateView):
     model = Task
     form_class = TaskUpdateForm
     context_object_name = 'quiz'
@@ -96,7 +94,7 @@ class QuizUpdateView(UpdateView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
-class QuizDeleteView(DeleteView):
+class TaskDeleteView(DeleteView):
     model = Task
     context_object_name = 'quiz'
     template_name = 'translatelab/supervisors/quiz_delete_confirm.html'
@@ -119,6 +117,7 @@ class QuizResultsView(DetailView):
 
     def get_context_data(self, **kwargs):
         quiz = self.get_object()
+        # !! clean this up. It should be removed
         taken_tasks = quiz.taken_tasks.select_related('translator__user').order_by('-date')
         total_taken_tasks = taken_tasks.count()
         quiz_score = quiz.taken_tasks.aggregate(average_score=Avg('score'))
@@ -164,14 +163,14 @@ def question_change(request, quiz_pk, question_pk):
     question = get_object_or_404(Translation, pk=question_pk, quiz=quiz)
 
     if request.method == 'POST':
-        form = QuestionForm(request.POST, instance=question)
+        form = TranslationForm(request.POST, instance=question)
         if form.is_valid():
             with transaction.atomic():
                 form.save()
             messages.success(request, 'Question and answers saved with success!')
             return redirect('supervisors:quiz_change', quiz.pk)
     else:
-        form = QuestionForm(instance=question)
+        form = TranslationForm(instance=question)
 
     return render(request, 'translatelab/supervisors/question_change_form.html', {
         'quiz': quiz,

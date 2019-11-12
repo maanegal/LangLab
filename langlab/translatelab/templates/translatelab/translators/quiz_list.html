@@ -17,7 +17,7 @@
             <td class="align-middle">{{ translation.quiz.name }}</td>
             <td class="align-middle">{{ translation.language.get_html_badge }}</td>
             <td class="text-right">
-              <a href="{% url 'translators:take_quiz' task.pk %}" class="btn btn-primary">Start task</a>
+              <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
             </td>
           </tr>
         {% empty %}
