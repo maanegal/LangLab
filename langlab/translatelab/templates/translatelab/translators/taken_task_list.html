@@ -13,12 +13,12 @@
       <tbody>
         {% for translation in translations %}
           <tr>
-            <td>{{ translation.quiz.name }}</td>
-            <td>{{ translation.quiz.source_content }}</td>
+            <td>{{ translation.task.name }}</td>
+            <td>{{ translation.task.source_content }}</td>
           </tr>
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="3">You haven't completed any quiz yet.</td>
+            <td class="bg-light text-center font-italic" colspan="3">You haven't completed any task yet.</td>
           </tr>
         {% endfor %}
       </tbody>

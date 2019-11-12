@@ -5,17 +5,17 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'supervisors:quiz_change_list' %}">My tasks</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'supervisors:quiz_change' quiz.pk %}">{{ quiz.name }}</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">My tasks</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change' task.pk %}">{{ task.name }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Results</li>
     </ol>
   </nav>
-  <h2 class="mb-3">{{ quiz.name }} Results</h2>
+  <h2 class="mb-3">{{ task.name }} Results</h2>
 
   <div class="card">
     <div class="card-header">
       <strong>Taken tasks</strong>
-      <span class="badge badge-pill badge-primary float-right">Average Score: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
+      <span class="badge badge-pill badge-primary float-right">Average Score: {{ task_score.average_score|default_if_none:0.0 }}</span>
     </div>
     <table class="table mb-0">
       <thead>
@@ -26,11 +26,11 @@
         </tr>
       </thead>
       <tbody>
-        {% for taken_quiz in taken_tasks %}
+        {% for taken_task in taken_tasks %}
           <tr>
-            <td>{{ taken_quiz.student.user.username }}</td>
-            <td>{{ taken_quiz.date|naturaltime }}</td>
-            <td>{{ taken_quiz.score }}</td>
+            <td>{{ taken_task.student.user.username }}</td>
+            <td>{{ taken_task.date|naturaltime }}</td>
+            <td>{{ taken_task.score }}</td>
           </tr>
         {% endfor %}
       </tbody>

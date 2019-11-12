@@ -26,7 +26,7 @@ class TranslatorSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('translators:quiz_list')
+        return redirect('translators:task_list')
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
@@ -34,7 +34,7 @@ class TranslatorLanguagesView(UpdateView):
     model = Translator
     form_class = TranslatorLanguagesForm
     template_name = 'translatelab/translators/languages_form.html'
-    success_url = reverse_lazy('translators:quiz_list')
+    success_url = reverse_lazy('translators:task_list')
 
     def get_object(self):
         return self.request.user.translator
@@ -49,7 +49,7 @@ class TaskListView(ListView):
     model = Translation
     ordering = ('name', )
     context_object_name = 'translations'
-    template_name = 'translatelab/translators/quiz_list.html'
+    template_name = 'translatelab/translators/task_list.html'
 
     def get_queryset(self):
         translator = self.request.user.translator
@@ -64,12 +64,12 @@ class TaskListView(ListView):
 class PerformedTranslationsListView(ListView):
     model = Translation
     context_object_name = 'translations'
-    template_name = 'translatelab/translators/taken_quiz_list.html'
+    template_name = 'translatelab/translators/taken_task_list.html'
 
     def get_queryset(self):
         queryset = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
-            .select_related('quiz') \
-            .order_by('quiz__name')
+            .select_related('task') \
+            .order_by('task__name')
         return queryset
 
 
@@ -81,11 +81,11 @@ def translate_task(request, pk):
 
     # If this translator has performed this translation earlier
     if translator.translations.filter(pk=pk).exists():
-        return render(request, 'translatelab/translators/taken_quiz_list.html')
+        return render(request, 'translatelab/translators/taken_task_list.html')
 
     # If another translator has accepted the task already, redirect back to list
     if translation.translator and translation.translator.filter(pk__isnull=False):
-        return redirect('translators:quiz_list')
+        return redirect('translators:task_list')
         # !! note: give some error message/explanation here
 
     # Now, the translator has accepted the task. Register the information
@@ -100,13 +100,13 @@ def translate_task(request, pk):
                 finished_translation.translation_time_finished = datetime.now()
                 finished_translation.save()
                 form.save_m2m()
-            return redirect('translators:quiz_list')
+            return redirect('translators:task_list')
             # !! give a notice to the translator
 
     else:
         form = TranslationForm(instance=translation)
 
-    return render(request, 'translatelab/translators/take_quiz_form.html', {
+    return render(request, 'translatelab/translators/take_task_form.html', {
         'translation': translation,
         'form': form,
     })

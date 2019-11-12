@@ -9,7 +9,7 @@ class SignUpView(TemplateView):
 def home(request):
     if request.user.is_authenticated:
         if request.user.is_supervisor:
-            return redirect('supervisors:quiz_change_list')
+            return redirect('supervisors:task_change_list')
         else:
-            return redirect('translators:quiz_list')
+            return redirect('translators:task_list')
     return render(request, 'translatelab/home.html')

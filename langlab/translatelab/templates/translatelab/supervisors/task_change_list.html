@@ -16,7 +16,7 @@
           <th>Task</th>
           <th>Source languages</th>
           <th>Target languages</th>
-          <th>Questions</th>
+          <th>Translations</th>
         </tr>
       </thead>
       <tbody>
@@ -24,8 +24,8 @@
           <tr>
             <td class="align-middle"><a href="{% url 'supervisors:quiz_change' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle">{{ task.source_language }}</td>
-            <td class="align-middle">{% for lang in task.questions.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
-            <td class="align-middle">{{ task.questions_count }}</td>
+            <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle">{{ task.translations_count }}</td>
           </tr>
         {% empty %}
           <tr>

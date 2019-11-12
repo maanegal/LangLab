@@ -24,14 +24,13 @@ class Language(models.Model):
 
 class Translator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    # tasks = models.ManyToManyField(Task, through='TakenQuiz')  # remove this
     languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
 
     def __str__(self):
         return self.user.username
 
 
-class Task(models.Model):  # used to be quiz
+class Task(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')  # !! rename
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
     source_content = models.TextField()  # !! should probably be called source_text
@@ -44,8 +43,8 @@ class Task(models.Model):  # used to be quiz
         return self.name
 
 
-class Translation(models.Model):  # Used to be Question
-    quiz = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='questions')  # !! rename: task
+class Translation(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='translations', null=True)  # !! rename: task
     text = models.TextField()  # !! rename: translated text, make blank=True
     validated_text = models.TextField(blank=True)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translations', null=True)
@@ -58,13 +57,3 @@ class Translation(models.Model):  # Used to be Question
 
     def __str__(self):
         return self.text
-
-
-class Answer(models.Model):
-    question = models.ForeignKey(Translation, on_delete=models.CASCADE, related_name='answers')
-    text = models.TextField()
-    is_correct = models.BooleanField('Correct answer', default=False)
-
-    def __str__(self):
-        return self.text
-

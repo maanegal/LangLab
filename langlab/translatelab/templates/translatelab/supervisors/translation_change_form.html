@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">My tasks</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change' task.pk %}">{{ task.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ translation.text }}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">{{ translation.text }}</h2>
+  <form action="" method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <p>Put more stuff here!</p>
+    <button type="submit" class="btn btn-success">Save changes</button>
+    <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
+    <a href="{% url 'supervisors:translation_delete' task.pk translation.pk %}" class="btn btn-danger float-right">Delete</a>
+  </form>
+{% endblock %}

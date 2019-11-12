@@ -14,7 +14,7 @@
       <tbody>
         {% for translation in translations %}
           <tr>
-            <td class="align-middle">{{ translation.quiz.name }}</td>
+            <td class="align-middle">{{ translation.task.name }}</td>
             <td class="align-middle">{{ translation.language.get_html_badge }}</td>
             <td class="text-right">
               <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
@@ -22,7 +22,7 @@
           </tr>
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="4">No quiz matching your languages right now.</td>
+            <td class="bg-light text-center font-italic" colspan="4">No task matching your languages right now.</td>
           </tr>
         {% endfor %}
       </tbody>
