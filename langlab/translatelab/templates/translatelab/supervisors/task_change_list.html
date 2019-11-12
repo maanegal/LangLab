@@ -7,7 +7,7 @@
     </ol>
   </nav>
   <h2 class="mb-3">My tasks
-    <a href="{% url 'supervisors:quiz_add' %}" class="btn btn-primary float-right" role="button">Add task</a>
+    <a href="{% url 'supervisors:task_add' %}" class="btn btn-primary float-right" role="button">Add task</a>
   </h2>
   <div class="card">
     <table class="table mb-0">
@@ -22,7 +22,7 @@
       <tbody>
         {% for task in tasks %}
           <tr>
-            <td class="align-middle"><a href="{% url 'supervisors:quiz_change' task.pk %}">{{ task.name }}</a></td>
+            <td class="align-middle"><a href="{% url 'supervisors:task_change' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle">{{ task.source_language }}</td>
             <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
             <td class="align-middle">{{ task.translations_count }}</td>
