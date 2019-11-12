@@ -8,10 +8,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
+                                  UpdateView, TemplateView)
 
 from ..decorators import supervisor_required
-from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm
+from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm
 from ..models import Translation, Task, User, Language
 
 
@@ -201,3 +201,37 @@ class TranslationDeleteView(DeleteView):
     def get_success_url(self):
         translation = self.get_object()
         return reverse('supervisors:task_change', kwargs={'pk': translation.task_id})
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class LanguageEditView(CreateView):
+    # !! add https://github.com/charettes/django-colorful
+    model = Language
+    form_class = LanguageEditForm
+    context_object_name = 'languages'
+    template_name = 'translatelab/supervisors/language_edit_form.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['languages'] = Language.objects.all()
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('supervisors:languages_edit')
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class LanguageDeleteView(DeleteView):
+    model = Language
+    #context_object_name = 'language'
+    template_name = 'translatelab/supervisors/language_delete_confirm.html'
+    success_url = reverse_lazy('supervisors:languages_edit')
+'''
+    def delete(self, request, *args, **kwargs):
+        language = self.get_object()
+        messages.success(request, 'The language %s was deleted with success!' % language.name)
+        return super().delete(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.request.user.tasks.all()
+'''

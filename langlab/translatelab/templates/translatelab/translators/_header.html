@@ -6,9 +6,9 @@
 
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
-    <a class="nav-link{% if active == 'new' %} active{% endif %}" href="{% url 'translators:quiz_list' %}">New</a>
+    <a class="nav-link{% if active == 'new' %} active{% endif %}" href="{% url 'translators:task_list' %}">Available tasks</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link{% if active == 'taken' %} active{% endif %}" href="{% url 'translators:taken_quiz_list' %}">Taken</a>
+    <a class="nav-link{% if active == 'taken' %} active{% endif %}" href="{% url 'translators:taken_task_list' %}">Translations performed</a>
   </li>
 </ul>

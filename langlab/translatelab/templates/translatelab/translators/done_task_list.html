@@ -6,7 +6,8 @@
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Task</th>
+          <th>Task name</th>
+          <th>Language</th>
           <th>Source text</th>
         </tr>
       </thead>
@@ -14,6 +15,7 @@
         {% for translation in translations %}
           <tr>
             <td>{{ translation.task.name }}</td>
+            <td>{{ translation.language.get_html_badge }}</td>
             <td>{{ translation.task.source_content }}</td>
           </tr>
         {% empty %}

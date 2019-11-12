@@ -64,7 +64,7 @@ class TaskListView(ListView):
 class PerformedTranslationsListView(ListView):
     model = Translation
     context_object_name = 'translations'
-    template_name = 'translatelab/translators/taken_task_list.html'
+    template_name = 'translatelab/translators/done_task_list.html'
 
     def get_queryset(self):
         queryset = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
@@ -79,19 +79,21 @@ def translate_task(request, pk):
     translation = get_object_or_404(Translation, pk=pk)
     translator = request.user.translator
 
-    # If this translator has performed this translation earlier
-    if translator.translations.filter(pk=pk).exists():
-        return render(request, 'translatelab/translators/taken_task_list.html')
+    # If this translator has performed this translation earlier. !! change this
+    #if translator.translations.filter(pk=pk).exists():
+        #return render(request, 'translatelab/translators/done_task_list.html')
 
     # If another translator has accepted the task already, redirect back to list
-    if translation.translator and translation.translator.filter(pk__isnull=False):
-        return redirect('translators:task_list')
+    #if translation.translator and translation..filter(pk__isnull=False):
+     #   return redirect('translators:task_list')
         # !! note: give some error message/explanation here
 
     # Now, the translator has accepted the task. Register the information
-    translation.translator = translator
-    translation.translation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
-    translation.save()
+    if not translation.translator:
+        translation.translator = translator
+        translation.translation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
+        translation.save()
+
     if request.method == 'POST':
         form = TranslationForm(request.POST, instance=translation)
         if form.is_valid():
@@ -106,7 +108,7 @@ def translate_task(request, pk):
     else:
         form = TranslationForm(instance=translation)
 
-    return render(request, 'translatelab/translators/take_task_form.html', {
+    return render(request, 'translatelab/translators/do_translation_form.html', {
         'translation': translation,
         'form': form,
     })

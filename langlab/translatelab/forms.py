@@ -53,7 +53,7 @@ class TranslationForm(forms.ModelForm):
         fields = ('text', )
 
 
-class TaskCreateForm(forms.ModelForm):  # !! make a separate for update, with fewer fields
+class TaskCreateForm(forms.ModelForm):
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.all(),
         required=False,
@@ -65,7 +65,13 @@ class TaskCreateForm(forms.ModelForm):  # !! make a separate for update, with fe
         fields = ('name', 'source_content', 'source_language', )
 
 
-class TaskUpdateForm(forms.ModelForm):  # !! make a separate for update, with fewer fields
+class TaskUpdateForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ('name', 'source_content', 'source_language', )
+
+
+class LanguageEditForm(forms.ModelForm):
+    class Meta:
+        model = Language
+        fields = ('name', 'color', )

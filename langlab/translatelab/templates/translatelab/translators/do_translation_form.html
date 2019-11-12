@@ -4,7 +4,7 @@
 
 {% block content %}
   <h2 class="mb-3">{{ translation.task.name }}</h2>
-  <p class="lead">tt: {{ translation.task.source_content }}</p>
+  <p class="lead">Source text: {{ translation.task.source_content }}</p>
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}

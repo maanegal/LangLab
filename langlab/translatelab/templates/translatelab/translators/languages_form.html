@@ -8,6 +8,6 @@
     {% csrf_token %}
     {{ form|crispy }}
     <button type="submit" class="btn btn-success">Save changes</button>
-    <a href="{% url 'translators:quiz_list' %}" class="btn btn-outline-secondary">Return without saving</a>
+    <a href="{% url 'translators:task_list' %}" class="btn btn-outline-secondary">Return without saving</a>
   </form>
 {% endblock %}

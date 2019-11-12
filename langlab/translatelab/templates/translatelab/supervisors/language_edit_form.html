@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <h2 class="mb-3">Manage languages</h2>
+  <form action="" method="post" novalidate>
+    {% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-3">
+          <strong>Language name</strong>
+        </div>
+        <div class="col-6">
+          <strong>HTML Color code</strong>
+        </div>
+        <div class="col-3">
+          <strong>Operations</strong>
+        </div>
+      </div>
+    </div>
+    <div class="list-group list-group-flush list-group-formset">
+      {% for language in languages %}
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-3">
+              {{ language.name }}
+            </div>
+            <div class="col-6" style="color: {{ language.color }}">
+                {{ language.color }}
+            </div>
+            <div class="col-3">
+              <a href="{% url 'supervisors:language_delete' language.pk %}" class="btn btn-danger">Delete</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="list-group-item text-center">
+          <p class="text-muted font-italic mb-0">No languages have been added yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+      <br>
+      <h4 class="mb-3">Add new language</h4>
+    <form action="" method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+      <button type="submit" class="btn btn-success">Add</button>
+  </form>
+{% endblock %}
