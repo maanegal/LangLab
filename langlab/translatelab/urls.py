@@ -1,5 +1,4 @@
 from django.urls import include, path
-
 from .views import translatelab, translators, supervisors
 
 urlpatterns = [
@@ -19,11 +18,13 @@ urlpatterns = [
         path('languages/<int:pk>/delete/', supervisors.LanguageDeleteView.as_view(), name='language_delete'),
         path('languages/<int:pk>/update/', supervisors.LanguageUpdateView.as_view(), name='language_update'),
         path('task/add/', supervisors.TaskCreateView.as_view(), name='task_add'),
-        path('task/<int:pk>/', supervisors.TaskUpdateView.as_view(), name='task_change'),
+        path('task/<int:pk>/', supervisors.TaskDetailsView.as_view(), name='task_details'),
+        path('task/<int:pk>/update/', supervisors.TaskUpdateView.as_view(), name='task_change'),
         path('task/<int:pk>/delete/', supervisors.TaskDeleteView.as_view(), name='task_delete'),
-        path('task/<int:pk>/results/', supervisors.TaskResultsView.as_view(), name='task_results'),
         path('task/<int:pk>/translation/add/<int:language_pk>/', supervisors.translation_add, name='translation_add'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/', supervisors.translation_change, name='translation_change'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/delete/', supervisors.TranslationDeleteView.as_view(), name='translation_delete'),
     ], 'translatelab'), namespace='supervisors')),
 ]
+
+

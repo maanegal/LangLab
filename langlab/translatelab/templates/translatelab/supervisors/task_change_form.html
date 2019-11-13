@@ -5,20 +5,19 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">My tasks</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ task.name }}</li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">All tasks</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
     </ol>
   </nav>
-  <h2 class="mb-3">
-    {{ task.name }}
-  </h2>
+  <h2 class="mb-3">Edit task: {{ task.name }}</h2>
   <div class="row mb-3">
     <div class="col-md-6 col-sm-8 col-12">
       <form method="post" novalidate>
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="btn btn-success">Save changes</button>
-        <a href="{% url 'supervisors:task_change_list' %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
+        <a href="{% url 'supervisors:task_details' task.pk %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
         <a href="{% url 'supervisors:task_delete' task.pk %}" class="btn btn-danger float-right">Delete</a>
       </form>
     </div>
@@ -31,14 +30,8 @@
         <div class="col-2">
           <strong>Language</strong>
         </div>
-        <div class="col-3">
+        <div class="col-7">
           <strong>Translated text</strong>
-        </div>
-        <div class="col-2">
-          <strong>Translated</strong>
-        </div>
-        <div class="col-2">
-          <strong>Validated</strong>
         </div>
         <div class="col-3">
           <strong>Operations</strong>
@@ -50,29 +43,15 @@
         <div class="list-group-item">
           <div class="row">
             <div class="col-2">
-              {{ translation.language }}
+              {{ translation.language.get_html_badge }}
             </div>
-            <div class="col-3">
+            <div class="col-7">
               {% if translation.text %}
-                "{{ translation.text }}"
+                {{ translation.text }}
               {% else %}
-                Not translated yet
+                [Not translated yet]
               {% endif %}
             </div>
-          <div class="col-2">
-              {% if translation.translation_time_finished %}
-                Yes, by <strong>{{translation.translator}}</strong>
-              {% else %}
-                No
-              {% endif %}
-          </div>
-          <div class="col-2">
-              {% if translation.validation_time_finished %}
-                Yes, by <strong>{{translation.validator}}</strong>
-              {% else %}
-                No
-              {% endif %}
-          </div>
             <div class="col-3">
               <a href="{% url 'supervisors:translation_delete' task.pk translation.pk %}" class="btn btn-danger">Delete</a>
               <a href="{% url 'supervisors:translation_change' task.pk translation.pk %}" class="btn btn-success">Edit</a>

@@ -43,6 +43,23 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+    def get_status(self):
+        max_score = self.translations.count() * 4
+        total_score = 0
+        for translation in self.translations.all():
+            score = 0
+            for point in [translation.translation_time_started,
+                          translation.translation_time_finished,
+                          translation.validation_time_started,
+                          translation.validation_time_finished]:
+                if point:
+                    score += 1
+            print(score, self.name)
+            total_score += score
+        print(total_score, max_score)
+        status = (total_score / max_score) * 100
+        return status
+
 
 class Translation(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='translations', null=True)  # !! rename: task

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags humanize %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">All tasks</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ task.name }}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">Task: {{ task.name }}
+  <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-primary float-right" role="button">Edit task</a>
+  </h2>
+
+  <div class="card">
+    <div class="card-header">
+      <p>Task created by <strong>{{ task.owner }}</strong> at {{ task.time_created }}</p>
+      {% if not task.time_updated == task.time_created %}
+        <p>Updated at {{ task.time_updated }}</p>
+      {% endif %}
+      <p><strong>Source language:</strong> {{ task.source_language.get_html_badge }}</p>
+      <p><strong>Source text:</strong> {{ task.source_content }}</p>
+      <p><strong>Percentage completed:</strong>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100">{{ task.get_status }}%</div>
+        </div>
+      </p>
+    </div>
+  </div>
+
+  <br>
+  <h4 class="mb-3">Translations</h4>
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-2">
+          <strong>Language</strong>
+        </div>
+        <div class="col-4">
+          <strong>Translated text</strong>
+        </div>
+        <div class="col-3">
+          <strong>Translation</strong>
+        </div>
+        <div class="col-3">
+          <strong>Validated</strong>
+        </div>
+      </div>
+    </div>
+    <div class="list-group list-group-flush list-group-formset">
+      {% for translation in task.translations.all %}
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-2">
+              {{ translation.language.get_html_badge }}
+            </div>
+            <div class="col-4">
+              {% if translation.text %}
+                {{ translation.text }}
+              {% else %}
+                [Not translated yet]
+              {% endif %}
+            </div>
+          <div class="col-3">
+              {% if translation.translation_time_started and translation.translation_time_finished %}
+                <p><em>Finished</em></p>
+                <p>By <strong>{{translation.translator}}</strong></p>
+                <p>Started at {{translation.translation_time_started}}</p>
+                <p>Finished at {{translation.translation_time_finished}}</p>
+              {% elif translation.translation_time_started and not translation.translation_time_finished %}
+                <p><em>In progress</em></p>
+                <p>By <strong>{{translation.translator}}</strong></p>
+                <p>Started at {{translation.translation_time_started}}</p>
+              {% else %}
+                <p><em>Pending</em></p>
+              {% endif %}
+          </div>
+          <div class="col-3">
+              {% if translation.validation_time_started and translation.validation_time_finished %}
+                <p><em>Finished</em></p>
+                <p>By <strong>{{translation.validator}}</strong></p>
+                <p>Started at {{translation.validation_time_started}}</p>
+                <p>Finished at {{translation.validation_time_finished}}</p>
+              {% elif translation.validation_time_started and not translation.validation_time_finished %}
+                <p><em>In progress</em></p>
+                <p>By <strong>{{translation.validator}}</strong></p>
+                <p>Started at {{translation.validation_time_started}}</p>
+              {% else %}
+                <p><em>Pending</em></p>
+              {% endif %}
+          </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="list-group-item text-center">
+          <p class="text-muted font-italic mb-0">This task does not have any target languages set</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  </div>
+{% endblock %}

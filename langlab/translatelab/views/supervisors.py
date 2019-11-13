@@ -62,7 +62,7 @@ class TaskCreateView(CreateView):
             if not lang == task.source_language:  # filter out the source language
                 t = task.translations.create(language=lang)
         form.save_m2m()  # save the many-to-many data for the form
-        messages.success(self.request, 'The task was created with success! Go ahead and add some translations now.')
+        messages.success(self.request, 'The task was created')
         return redirect('supervisors:task_change', task.pk)
 
 
@@ -104,28 +104,16 @@ class TaskDeleteView(DeleteView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
-class TaskResultsView(DetailView):
+class TaskDetailsView(DetailView):
     model = Task
-    context_object_name = 'task'
-    template_name = 'translatelab/supervisors/task_results.html'
+    #context_object_name = 'task'
+    template_name = 'translatelab/supervisors/task_details.html'
 
-    def get_context_data(self, **kwargs):
-        task = self.get_object()
-        # !! clean this up. It should be removed
-        taken_tasks = task.taken_tasks.select_related('translator__user').order_by('-date')
-        total_taken_tasks = taken_tasks.count()
-        task_score = task.taken_tasks.aggregate(average_score=Avg('score'))
-        extra_context = {
-            'taken_tasks': taken_tasks,
-            'total_taken_tasks': total_taken_tasks,
-            'task_score': task_score
-        }
-        kwargs.update(extra_context)
-        return super().get_context_data(**kwargs)
-
-    def get_queryset(self):
-        return Task.objects.all()
-
+    # def get_queryset(self):
+    #     queryset = Task.objects.all() \
+    #         .prefetch_related('target_languages') \
+    #         .select_related('source_language')
+    #     return queryset
 
 @login_required
 @supervisor_required
