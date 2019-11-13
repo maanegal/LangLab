@@ -31,6 +31,18 @@ class SupervisorSignUpView(CreateView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
+class UserListView(ListView):
+    model = User
+    ordering = ('name', )
+    context_object_name = 'users'
+    template_name = 'translatelab/supervisors/user_list.html'
+
+    def get_queryset(self):
+        queryset = User.objects.all().select_related('translator')
+        return queryset
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
 class TaskListView(ListView):
     model = Task
     ordering = ('name', )

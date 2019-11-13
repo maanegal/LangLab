@@ -21,6 +21,7 @@
       {% endif %}
       <p><strong>Source language:</strong> {{ task.source_language.get_html_badge }}</p>
       <p><strong>Source text:</strong> {{ task.source_content }}</p>
+      <p><strong>Task priority:</strong> {{ task.get_priority_display }}</p>
       <p><strong>Percentage completed:</strong>
         <div class="progress">
           <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100">{{ task.get_status }}%</div>

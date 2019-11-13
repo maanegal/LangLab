@@ -10,6 +10,7 @@
           <th>Source language</th>
           <th>Target language</th>
           <th>Type</th>
+          <th>Priority</th>
           <th></th>
         </tr>
       </thead>
@@ -26,6 +27,7 @@
                 Validation
               {% endif %}
             </td>
+            <td>{{ translation.task.get_priority_display }}</td>
             <td class="text-right">
               {% if not translation.translator %}
                 <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>

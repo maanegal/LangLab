@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="mb-3">Manage users
+  </h2>
+  <div class="card">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Date joined</th>
+          <th>Last login</th>
+          <th>Translator task count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td class="align-middle">{{ user.username }}</td>
+            <td class="align-middle">
+                {% if user.is_translator %}
+                Translator
+                {% else %}
+                Supervisor
+                {% endif %}
+            </td>
+            <td class="align-middle">{{ user.date_joined|date }}</td>
+            <td class="align-middle">{{ user.last_login }}</td>
+            <td class="align-middle">
+                {% if user.is_translator %}
+                {{ user.translator.translations.all.count }}
+                {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="bg-light text-center font-italic" colspan="5">No users found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

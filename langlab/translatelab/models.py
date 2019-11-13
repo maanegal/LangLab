@@ -39,6 +39,18 @@ class Task(models.Model):
     source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_source', null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     time_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+    PRIORITY_CHOICES = [
+        (5, 'Very high'),
+        (4, 'High'),
+        (3, 'Default'),
+        (2, 'Low'),
+        (1, 'Very low'),
+    ]
+    priority = models.IntegerField(
+        choices=PRIORITY_CHOICES,
+        default=3,
+    )
+
 
     def __str__(self):
         return self.name
