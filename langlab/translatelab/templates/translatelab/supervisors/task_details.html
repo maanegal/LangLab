@@ -56,7 +56,9 @@
               {{ translation.language.get_html_badge }}
             </div>
             <div class="col-4">
-              {% if translation.text %}
+              {% if translation.validated_text %}
+                {{ translation.validated_text }}
+              {% elif translation.text %}
                 {{ translation.text }}
               {% else %}
                 [Not translated yet]
