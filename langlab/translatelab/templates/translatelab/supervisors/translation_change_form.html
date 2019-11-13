@@ -14,7 +14,6 @@
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
-    <p>Put more stuff here!</p>
     <button type="submit" class="btn btn-success">Save changes</button>
     <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
     <a href="{% url 'supervisors:translation_delete' task.pk translation.pk %}" class="btn btn-danger float-right">Delete</a>

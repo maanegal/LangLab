@@ -17,6 +17,7 @@ urlpatterns = [
         path('', supervisors.TaskListView.as_view(), name='task_change_list'),
         path('languages/', supervisors.LanguageEditView.as_view(), name='languages_edit'),
         path('languages/<int:pk>/delete/', supervisors.LanguageDeleteView.as_view(), name='language_delete'),
+        path('languages/<int:pk>/update/', supervisors.LanguageUpdateView.as_view(), name='language_update'),
         path('task/add/', supervisors.TaskCreateView.as_view(), name='task_add'),
         path('task/<int:pk>/', supervisors.TaskUpdateView.as_view(), name='task_change'),
         path('task/<int:pk>/delete/', supervisors.TaskDeleteView.as_view(), name='task_delete'),

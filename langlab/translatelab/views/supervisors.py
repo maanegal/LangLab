@@ -216,6 +216,17 @@ class LanguageEditView(CreateView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
+class LanguageUpdateView(UpdateView):
+    model = Language
+    form_class = LanguageEditForm
+    context_object_name = 'languages'
+    template_name = 'translatelab/supervisors/language_update_form.html'
+
+    def get_success_url(self):
+        return reverse('supervisors:languages_edit')
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
 class LanguageDeleteView(DeleteView):
     model = Language
     template_name = 'translatelab/supervisors/language_delete_confirm.html'

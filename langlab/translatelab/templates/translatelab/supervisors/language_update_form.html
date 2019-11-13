@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:languages_edit' %}">Manage languages</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit {{language.name}}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">Edit language: {{ language.name }}</h2>
+  <form action="" method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-success">Save changes</button>
+    <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
+
+  </form>
+{% endblock %}
