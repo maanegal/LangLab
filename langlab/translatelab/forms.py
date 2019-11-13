@@ -53,6 +53,12 @@ class TranslationForm(forms.ModelForm):
         fields = ('text', )
 
 
+class ValidationForm(forms.ModelForm):
+    class Meta:
+        model = Translation
+        fields = ('validated_text', )
+
+
 class TaskCreateForm(forms.ModelForm):
     languages = forms.ModelMultipleChoiceField(
         queryset=Language.objects.all(),

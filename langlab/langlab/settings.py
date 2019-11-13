@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'django_simple_bulma',
+    'colorful',
 
     'translatelab',
 ]

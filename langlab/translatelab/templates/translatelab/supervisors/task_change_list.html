@@ -17,6 +17,7 @@
           <th>Task name</th>
           <th>Source languages</th>
           <th>Target languages</th>
+          <th>Created by</th>
           <th>Last updated</th>
         </tr>
       </thead>
@@ -24,8 +25,9 @@
         {% for task in tasks %}
           <tr>
             <td class="align-middle"><a href="{% url 'supervisors:task_change' task.pk %}">{{ task.name }}</a></td>
-            <td class="align-middle">{{ task.source_language }}</td>
+            <td class="align-middle">{{ task.source_language.get_html_badge }}</td>
             <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle">{{ task.owner }}</td>
             <td class="align-middle">{{ task.time_updated }}</td>
           </tr>
         {% empty %}

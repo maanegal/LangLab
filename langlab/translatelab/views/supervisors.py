@@ -38,7 +38,7 @@ class TaskListView(ListView):
     template_name = 'translatelab/supervisors/task_change_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.tasks \
+        queryset = Task.objects.all() \
             .prefetch_related('target_languages') \
             .select_related('source_language')
         return queryset
@@ -81,12 +81,7 @@ class TaskUpdateView(UpdateView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        """
-        This method is an implicit object-level permission management
-        This view will only match the ids of existing tasks that belongs
-        to the logged in user.
-        """
-        return self.request.user.tasks.all()
+        return Task.objects.all()
 
     def get_success_url(self):
         return reverse('supervisors:task_change', kwargs={'pk': self.object.pk})
@@ -105,7 +100,7 @@ class TaskDeleteView(DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.request.user.tasks.all()
+        return Task.objects.all()
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
@@ -129,7 +124,7 @@ class TaskResultsView(DetailView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return self.request.user.tasks.all()
+        return Task.objects.all()
 
 
 @login_required
@@ -139,7 +134,7 @@ def translation_add(request, pk, language_pk):
     # by the owner, which is the logged in user, we are protecting
     # this view at the object-level. Meaning only the owner of
     # task will be able to add translations to it.
-    task = get_object_or_404(Task, pk=pk, owner=request.user)
+    task = get_object_or_404(Task, pk=pk)
     lang = Language.objects.get(pk=language_pk)
 
     translation = Translation(task=task, language=lang)
@@ -158,7 +153,7 @@ def translation_change(request, task_pk, translation_pk):
     # change its details and also only translations that belongs to this
     # specific task can be changed via this url (in cases where the
     # user might have forged/player with the url params.
-    task = get_object_or_404(Task, pk=task_pk, owner=request.user)
+    task = get_object_or_404(Task, pk=task_pk)
     translation = get_object_or_404(Translation, pk=translation_pk, task=task)
 
     if request.method == 'POST':
@@ -223,15 +218,5 @@ class LanguageEditView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class LanguageDeleteView(DeleteView):
     model = Language
-    #context_object_name = 'language'
     template_name = 'translatelab/supervisors/language_delete_confirm.html'
     success_url = reverse_lazy('supervisors:languages_edit')
-'''
-    def delete(self, request, *args, **kwargs):
-        language = self.get_object()
-        messages.success(request, 'The language %s was deleted with success!' % language.name)
-        return super().delete(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return self.request.user.tasks.all()
-'''

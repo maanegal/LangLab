@@ -10,7 +10,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 from datetime import datetime
 
 from ..decorators import translator_required
-from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TranslationForm
+from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TranslationForm, ValidationForm
 from ..models import Task, Translator, Translation, User
 
 
@@ -55,21 +55,32 @@ class TaskListView(ListView):
         translator = self.request.user.translator
         translator_languages = translator.languages.values_list('pk', flat=True)
 
-        queryset = Translation.objects.filter(language__in=translator_languages) \
+        queryset_trans = Translation.objects.filter(language__in=translator_languages) \
             .exclude(translator__isnull=False)
+        queryset_valid = Translation.objects.filter(language__in=translator_languages) \
+            .exclude(translator__isnull=True).exclude(validator__isnull=False).exclude(translator=translator)
+        queryset = queryset_trans | queryset_valid
         return queryset
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
-class PerformedTranslationsListView(ListView):
+class DoneTaskListView(ListView):
     model = Translation
     context_object_name = 'translations'
     template_name = 'translatelab/translators/done_task_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
+        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
             .select_related('task') \
             .order_by('task__name')
+        for t in queryset_tran:
+            t.tasktype = 'Translation'
+        queryset_val = self.request.user.translator.validated_translations.filter(translation_time_finished__isnull=False) \
+            .select_related('task') \
+            .order_by('task__name')
+        for v in queryset_val:
+            v.tasktype = 'Validation'
+        queryset = queryset_tran | queryset_val
         return queryset
 
 
@@ -84,8 +95,8 @@ def translate_task(request, pk):
         #return render(request, 'translatelab/translators/done_task_list.html')
 
     # If another translator has accepted the task already, redirect back to list
-    #if translation.translator and translation..filter(pk__isnull=False):
-     #   return redirect('translators:task_list')
+    if translation.translator and translation.translator != translator:
+        return redirect('translators:task_list')
         # !! note: give some error message/explanation here
 
     # Now, the translator has accepted the task. Register the information
@@ -109,6 +120,46 @@ def translate_task(request, pk):
         form = TranslationForm(instance=translation)
 
     return render(request, 'translatelab/translators/do_translation_form.html', {
+        'translation': translation,
+        'form': form,
+    })
+
+
+@login_required
+@translator_required
+def validate_task(request, pk):
+    translation = get_object_or_404(Translation, pk=pk)
+    validator = request.user.translator
+    print(type(validator))
+
+    # Make sure the validator and translator are not the same
+    if translation.translator and translation.translator == validator:
+        return redirect('translators:task_list')
+        # !! note: give some error message/explanation here
+
+    # Now, the translator has accepted the task. Register the information
+    if not translation.validator:
+        translation.validator = validator
+        translation.validation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
+        translation.save()
+
+    if request.method == 'POST':
+        form = ValidationForm(request.POST, instance=translation, initial={'validated_text': translation.text})
+        if form.is_valid():
+            with transaction.atomic():
+                finished_validation = form.save(commit=False)
+                finished_validation.validation_time_finished = datetime.now()
+                if finished_validation.validated_text == finished_validation.text:
+                    finished_validation.validated_text = ""
+                finished_validation.save()
+                form.save_m2m()
+            return redirect('translators:task_list')
+            # !! give a notice to the translator
+
+    else:
+        form = ValidationForm(instance=translation, initial={'validated_text': translation.text})
+
+    return render(request, 'translatelab/translators/do_validation_form.html', {
         'translation': translation,
         'form': form,
     })

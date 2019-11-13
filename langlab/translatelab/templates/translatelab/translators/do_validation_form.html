@@ -3,9 +3,12 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h2 class="mb-3">Perform translation: {{ translation.task.name }}</h2>
+  <h2 class="mb-3">Validate translation: {{ translation.task.name }}</h2>
   <p class="lead">Source text: {{ translation.task.source_content }}</p>
   <p class="lead">Target language: {{ translation.language.name }}</p>
+  <p class="lead">Translated text: {{ translation.text }}</p>
+  <br>
+  <p>Make any necessary changes in this text field. If the text field is blank or the text matches the original translations exactly, the text is registered as <em>validated</em>.</p>
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}

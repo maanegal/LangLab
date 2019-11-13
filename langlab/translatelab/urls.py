@@ -8,8 +8,9 @@ urlpatterns = [
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),
         path('languages/', translators.TranslatorLanguagesView.as_view(), name='translator_languages'),
-        path('taken/', translators.PerformedTranslationsListView.as_view(), name='taken_task_list'),
+        path('taken/', translators.DoneTaskListView.as_view(), name='taken_task_list'),
         path('task/translation/<int:pk>/', translators.translate_task, name='translate_task'),
+        path('task/validation/<int:pk>/', translators.validate_task, name='validate_task'),
     ], 'translatelab'), namespace='translators')),
 
     path('supervisors/', include(([

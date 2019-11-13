@@ -7,7 +7,9 @@
       <thead>
         <tr>
           <th>Task name</th>
-          <th>Languages</th>
+          <th>Source language</th>
+          <th>Target language</th>
+          <th>Type</th>
           <th></th>
         </tr>
       </thead>
@@ -15,14 +17,26 @@
         {% for translation in translations %}
           <tr>
             <td class="align-middle">{{ translation.task.name }}</td>
-            <td class="align-middle">{{ translation.language.get_html_badge }}</td>
+            <td>{{ translation.task.source_language.get_html_badge }}</td>
+            <td>{{ translation.language.get_html_badge }}</td>
+            <td class="align-middle">
+              {% if not translation.translator %}
+                Translation
+              {% elif not translation.validator %}
+                Validation
+              {% endif %}
+            </td>
             <td class="text-right">
-              <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+              {% if not translation.translator %}
+                <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+              {% elif not translation.validator %}
+                <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+              {% endif %}
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="4">No task matching your languages right now.</td>
+            <td class="bg-light text-center font-italic" colspan="5">No task matching your languages right now.</td>
           </tr>
         {% endfor %}
       </tbody>

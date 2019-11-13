@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.html import escape, mark_safe
+#from colorful.fields import RGBColorField
 
 
 class User(AbstractUser):
@@ -51,7 +52,7 @@ class Translation(models.Model):
     translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='translations', null=True)
     translation_time_started = models.DateTimeField(null=True, blank=True)
     translation_time_finished = models.DateTimeField(null=True, blank=True)
-    validator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='validated_translations', null=True)
+    validator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='validated_translations', null=True)
     validation_time_started = models.DateTimeField(null=True, blank=True)
     validation_time_finished = models.DateTimeField(null=True, blank=True)
 

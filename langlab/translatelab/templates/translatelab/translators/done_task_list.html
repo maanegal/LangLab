@@ -7,16 +7,25 @@
       <thead>
         <tr>
           <th>Task name</th>
-          <th>Language</th>
-          <th>Source text</th>
+          <th>Source language</th>
+          <th>Target language</th>
+          <th>Type</th>
+          <th>Finished at</th>
         </tr>
       </thead>
       <tbody>
         {% for translation in translations %}
           <tr>
             <td>{{ translation.task.name }}</td>
+            <td>{{ translation.task.source_language.get_html_badge }}</td>
             <td>{{ translation.language.get_html_badge }}</td>
-            <td>{{ translation.task.source_content }}</td>
+            <td>
+              {% if translation.translator.user == user %}Translation
+              {% elif translation.validator.user == user %}Validation
+              {% else %}Unknown
+              {% endif%}
+            </td>
+            <td>{{ translation.translation_time_finished }}</td>
           </tr>
         {% empty %}
           <tr>
