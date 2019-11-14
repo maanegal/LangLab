@@ -3,12 +3,10 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Avg, Count
-#from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView, TemplateView)
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm
@@ -40,6 +38,12 @@ class UserListView(ListView):
     def get_queryset(self):
         queryset = User.objects.all().select_related('translator')
         return queryset
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class UserDetailsView(DetailView):
+    model = User
+    template_name = 'translatelab/supervisors/user_details.html'
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')

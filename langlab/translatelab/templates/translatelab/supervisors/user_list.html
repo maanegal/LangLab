@@ -17,7 +17,7 @@
       <tbody>
         {% for user in users %}
           <tr>
-            <td class="align-middle">{{ user.username }}</td>
+            <td class="align-middle"><a href="{% url 'supervisors:user_details' user.pk %}">{{ user.username }}</td>
             <td class="align-middle">
                 {% if user.is_translator %}
                 Translator
