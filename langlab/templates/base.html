@@ -19,7 +19,7 @@
   <body>
     <div class="container my-4">
       <div class="row justify-content-center">
-        <div class="col-md-10 col-sm-12">
+        <div class="col-md-12 col-sm-12">
           <div class="row">
             <div class="col-6">
               <h1 class="logo">
@@ -37,8 +37,8 @@
             </div>
             <div class="col-6 text-right">
               {% if user.is_authenticated %}
-                <p class="pt-3">Logged in as <strong>{{ user.username }}</strong>
-                    {% if user.is_supervisor %}(supervisor){% else %}(translator){% endif %}&nbsp;&nbsp;
+                <p class="pt-3">Logged in as <strong>{{ request.user.username }}</strong>
+                    {% if request.user.is_supervisor %}(supervisor){% else %}(translator){% endif %}&nbsp;&nbsp;
                   <a href="{% url 'logout' %}" class="btn btn-danger" role="button">Log out</a></p>
               {% else %}
                 <a href="{% url 'login' %}" class="btn btn-light" role="button">Log in</a>
