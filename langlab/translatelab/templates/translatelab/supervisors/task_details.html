@@ -10,7 +10,11 @@
     </ol>
   </nav>
   <h2 class="mb-3">Task: {{ task.name }}
-  <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-primary float-right" role="button">Edit task</a>
+    {% if task.approved == False %}
+    <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-primary float-right" role="button">Edit task</a>
+    {% elif task.approved == True %}
+      <p class="btn btn-success float-right">Completed</p>
+    {% endif %}
   </h2>
 
   <div class="card">
@@ -22,11 +26,19 @@
       <p><strong>Source language:</strong> {{ task.source_language.get_html_badge }}</p>
       <p><strong>Source text:</strong> {{ task.source_content }}</p>
       <p><strong>Task priority:</strong> {{ task.get_priority_display }}</p>
+      <p><strong>Point score:</strong> {{ task.point_score }}</p>
       <p><strong>Percentage completed:</strong>
         <div class="progress">
           <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100">{{ task.get_status }}%</div>
         </div>
       </p>
+      {% if task.get_status == 100 and task.approved == False %}
+        <p>Task has been completed. When the results have been approved, the translator and validator will receive their points. &nbsp;
+          <a href="{% url 'supervisors:task_approve' task.pk %}" class="btn btn-success" role="button">Approve</a>
+        </p>
+      {% elif task.get_status == 100 and task.approved == True %}
+      <p>Task has been approved and points have been awarded.</p>
+      {% endif %}
     </div>
   </div>
 

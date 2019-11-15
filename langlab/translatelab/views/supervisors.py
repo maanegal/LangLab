@@ -11,6 +11,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView, 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm
 from ..models import Translation, Task, User, Language
+from ..point_score import PointScore
 
 
 class SupervisorSignUpView(CreateView):
@@ -69,17 +70,17 @@ class TaskCreateView(CreateView):
     def form_valid(self, form):
         task = form.save(commit=False)
         task.owner = self.request.user
-
-        #task.time_created =
-        # !! This is where processing will be done
-        # for the objects selected in target_langs, create Translation objects
+        ps = PointScore(text=form.cleaned_data['source_content'], priority=form.cleaned_data['priority'])
+        task.word_count = ps.word_count
+        task.point_score = ps.score()
+        task.point_score_version = ps.version
         task.save()
         for lang in form.cleaned_data['languages']:
             if not lang == task.source_language:  # filter out the source language
                 t = task.translations.create(language=lang)
         form.save_m2m()  # save the many-to-many data for the form
         messages.success(self.request, 'The task was created')
-        return redirect('supervisors:task_change', task.pk)
+        return redirect('supervisors:task_details', task.pk)
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
@@ -99,8 +100,19 @@ class TaskUpdateView(UpdateView):
     def get_queryset(self):
         return Task.objects.all()
 
+    def form_valid(self, form):
+        task = form.save(commit=False)
+        ps = PointScore(text=form.cleaned_data['source_content'], priority=form.cleaned_data['priority'])
+        task.word_count = ps.word_count
+        task.point_score = ps.score()
+        task.point_score_version = ps.version
+        task.save()
+        form.save_m2m()  # save the many-to-many data for the form
+        messages.success(self.request, 'The task was updated')
+        return redirect('supervisors:task_details', task.pk)
+
     def get_success_url(self):
-        return reverse('supervisors:task_change', kwargs={'pk': self.object.pk})
+        return reverse('supervisors:task_details', kwargs={'pk': self.object.pk})
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
@@ -130,6 +142,25 @@ class TaskDetailsView(DetailView):
     #         .prefetch_related('target_languages') \
     #         .select_related('source_language')
     #     return queryset
+
+
+@login_required
+@supervisor_required
+def task_approve(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if task.get_status() == 100:
+        points = task.point_score
+        for translation in task.translations.all():
+            translator = translation.translator
+            validator = translation.validator
+            translator.points_earned += points
+            validator.points_earned += points
+            translator.save()
+            validator.save()
+        task.approved = True
+        task.save()
+    return redirect('supervisors:task_details', task.pk)
+
 
 @login_required
 @supervisor_required

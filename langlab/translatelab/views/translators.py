@@ -130,7 +130,6 @@ def translate_task(request, pk):
 def validate_task(request, pk):
     translation = get_object_or_404(Translation, pk=pk)
     validator = request.user.translator
-    print(type(validator))
 
     # Make sure the validator and translator are not the same
     if translation.translator and translation.translator == validator:

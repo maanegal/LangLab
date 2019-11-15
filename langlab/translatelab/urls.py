@@ -23,6 +23,7 @@ urlpatterns = [
         path('task/<int:pk>/', supervisors.TaskDetailsView.as_view(), name='task_details'),
         path('task/<int:pk>/update/', supervisors.TaskUpdateView.as_view(), name='task_change'),
         path('task/<int:pk>/delete/', supervisors.TaskDeleteView.as_view(), name='task_delete'),
+        path('task/<int:pk>/approve/', supervisors.task_approve, name='task_approve'),
         path('task/<int:pk>/translation/add/<int:language_pk>/', supervisors.translation_add, name='translation_add'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/', supervisors.translation_change, name='translation_change'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/delete/', supervisors.TranslationDeleteView.as_view(), name='translation_delete'),

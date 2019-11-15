@@ -29,7 +29,7 @@ class PointScore:
     Get score by calling obj.score()
     """
     def __init__(self, text, priority=3, normalizing_factor=50, language='en'):
-        self.version = 0
+        self.version = 1
         self.text = text
         self.language = language
         self.normalizing_factor = normalizing_factor
@@ -72,9 +72,12 @@ class PointScore:
         lix = self.lix()
         scaling_factor = ((lix + self.normalizing_factor) / 2) * 0.02  # could probably be made more efficient
         score = self.word_count * scaling_factor
-        if self.priority_factor.get(self.priority, None):
-            score = score * self.priority_factor[self.priority]
         int_score = int(score)
         if int_score < 10:
             int_score = 10
+        if self.priority_factor.get(self.priority, None):
+            int_score = int_score * self.priority_factor[self.priority]
         return int_score
+
+    def __str__(self):
+        return str(self.score())

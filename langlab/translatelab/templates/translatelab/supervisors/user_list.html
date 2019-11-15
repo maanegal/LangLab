@@ -11,6 +11,7 @@
           <th>Role</th>
           <th>Date joined</th>
           <th>Last login</th>
+          <th>Translator points</th>
           <th>Translator task count</th>
         </tr>
       </thead>
@@ -27,6 +28,11 @@
             </td>
             <td class="align-middle">{{ user.date_joined|date }}</td>
             <td class="align-middle">{{ user.last_login }}</td>
+            <td class="align-middle">
+                {% if user.is_translator %}
+                {{ user.translator.points_earned }}
+                {% endif %}
+            </td>
             <td class="align-middle">
                 {% if user.is_translator %}
                 {{ user.translator.translations.all.count }}

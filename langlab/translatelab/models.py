@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.html import escape, mark_safe
 #from colorful.fields import RGBColorField
+from .point_score import PointScore
 
 
 class User(AbstractUser):
@@ -26,6 +27,7 @@ class Language(models.Model):
 class Translator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
+    points_earned = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username
@@ -50,7 +52,10 @@ class Task(models.Model):
         choices=PRIORITY_CHOICES,
         default=3,
     )
-
+    point_score = models.IntegerField(default=0)
+    point_score_version = models.IntegerField(default=0)
+    word_count = models.IntegerField(default=0)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -66,9 +71,7 @@ class Task(models.Model):
                           translation.validation_time_finished]:
                 if point:
                     score += 1
-            print(score, self.name)
             total_score += score
-        print(total_score, max_score)
         status = (total_score / max_score) * 100
         return status
 

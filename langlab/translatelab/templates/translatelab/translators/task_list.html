@@ -10,6 +10,7 @@
           <th>Source language</th>
           <th>Target language</th>
           <th>Type</th>
+          <th>Points</th>
           <th>Priority</th>
           <th></th>
         </tr>
@@ -22,11 +23,12 @@
             <td>{{ translation.language.get_html_badge }}</td>
             <td class="align-middle">
               {% if not translation.translator %}
-                Translation
+              <p>Translation</p>
               {% elif not translation.validator %}
-                Validation
+              <p>Validation</p>
               {% endif %}
             </td>
+            <td>{{ translation.task.point_score }}</td>
             <td>{{ translation.task.get_priority_display }}</td>
             <td class="text-right">
               {% if not translation.translator %}
