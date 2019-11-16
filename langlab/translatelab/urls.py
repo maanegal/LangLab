@@ -3,6 +3,7 @@ from .views import translatelab, translators, supervisors
 
 urlpatterns = [
     path('', translatelab.home, name='home'),
+    path('profile/', translatelab.user_profile, name='user_profile'),
 
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),

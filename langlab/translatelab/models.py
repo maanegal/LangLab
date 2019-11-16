@@ -73,7 +73,7 @@ class Task(models.Model):
                     score += 1
             total_score += score
         status = (total_score / max_score) * 100
-        return status
+        return int(status)
 
 
 class Translation(models.Model):
