@@ -36,8 +36,8 @@ class Language(models.Model):
 
     def get_html_badge(self):
         name = escape(self.name)
-        color = escape(self.color)
-        html = '<span class="badge badge-primary" style="background-color: %s">%s</span>' % (color, name)
+        code = escape(self.code)
+        html = '<span class="badge badge-light" style="margin-right:3px;"><span class="flag-icon flag-icon-%s"></span>&nbsp;%s</span>' % (code, name)
         return mark_safe(html)
 
 

@@ -10,6 +10,7 @@
     </ol>
   </nav>
   <h2 class="mb-3">Edit language: {{ language.name }}</h2>
+<p>Use <a href="https://www.iso.org/obp/ui/#search/code/" target="_blank"> ISO 3166-1-alpha-2 codes</a></p>
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}

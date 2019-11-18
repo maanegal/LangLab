@@ -4,7 +4,7 @@
 
 {% block content %}
   <h2 class="mb-3">Manage languages</h2>
-  <form action="" method="post" novalidate>
+  <p action="" method="post" novalidate>
     {% csrf_token %}
   <div class="card">
     <div class="card-header">
@@ -13,10 +13,10 @@
           <strong>Language name</strong>
         </div>
         <div class="col-3">
-          <strong>Code</strong>
+          <strong>Country code</strong>
         </div>
         <div class="col-3">
-          <strong>HTML Color code</strong>
+          <strong>Flag</strong>
         </div>
         <div class="col-3">
           <strong>Operations</strong>
@@ -34,7 +34,7 @@
               {{ language.code }}
             </div>
             <div class="col-3">
-              <span class="badge badge-primary" style="background-color: {{ language.color }}">{{ language.color }}</span>
+              <span class="flag-icon flag-icon-{{ language.code }}"></span>
             </div>
             <div class="col-3">
               <a href="{% url 'supervisors:language_delete' language.pk %}" class="btn btn-danger">Delete</a>
@@ -51,6 +51,7 @@
   </div>
       <br>
       <h4 class="mb-3">Add new language</h4>
+    <p>Use <a href="https://www.iso.org/obp/ui/#search/code/" target="_blank"> ISO 3166-1-alpha-2 codes</a></p>
     <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
