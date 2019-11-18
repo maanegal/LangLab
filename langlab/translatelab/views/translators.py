@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..decorators import translator_required
 from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TranslationForm, ValidationForm
@@ -102,7 +102,7 @@ def translate_task(request, pk):
     # Now, the translator has accepted the task. Register the information
     if not translation.translator:
         translation.translator = translator
-        translation.translation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
+        translation.translation_time_started = datetime.now(timezone.utc)
         translation.save()
 
     if request.method == 'POST':
@@ -110,7 +110,7 @@ def translate_task(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 finished_translation = form.save(commit=False)
-                finished_translation.translation_time_finished = datetime.now()
+                finished_translation.translation_time_finished = datetime.now(timezone.utc)
                 finished_translation.save()
                 form.save_m2m()
             return redirect('translators:task_list')
@@ -139,7 +139,7 @@ def validate_task(request, pk):
     # Now, the translator has accepted the task. Register the information
     if not translation.validator:
         translation.validator = validator
-        translation.validation_time_started = datetime.now()  # !! make sure that this is right. Maybe do something directly in DB
+        translation.validation_time_started = datetime.now(timezone.utc)
         translation.save()
 
     if request.method == 'POST':
@@ -147,7 +147,7 @@ def validate_task(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 finished_validation = form.save(commit=False)
-                finished_validation.validation_time_finished = datetime.now()
+                finished_validation.validation_time_finished = datetime.now(timezone.utc)
                 if finished_validation.validated_text == finished_validation.text:
                     finished_validation.validated_text = ""
                 finished_validation.save()

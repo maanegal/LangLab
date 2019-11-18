@@ -12,7 +12,10 @@
         <div class="col-3">
           <strong>Language name</strong>
         </div>
-        <div class="col-6">
+        <div class="col-3">
+          <strong>Code</strong>
+        </div>
+        <div class="col-3">
           <strong>HTML Color code</strong>
         </div>
         <div class="col-3">
@@ -27,7 +30,10 @@
             <div class="col-3">
               {{ language.name }}
             </div>
-            <div class="col-6">
+            <div class="col-3">
+              {{ language.code }}
+            </div>
+            <div class="col-3">
               <span class="badge badge-primary" style="background-color: {{ language.color }}">{{ language.color }}</span>
             </div>
             <div class="col-3">

@@ -25,6 +25,9 @@
       {% endif %}
       <p><strong>Source language:</strong> {{ task.source_language.get_html_badge }}</p>
       <p><strong>Source text:</strong> {{ task.source_content }}</p>
+      {% if task.instructions %}
+        <p><strong>Task instructions:</strong> {{ task.instructions }}</p>
+      {% endif %}
       <p><strong>Task priority:</strong> {{ task.get_priority_display }}</p>
       <p><strong>Point score:</strong> {{ task.point_score }}</p>
       <p><strong>Percentage completed:</strong>
@@ -69,12 +72,18 @@
               {{ translation.language.get_html_badge }}
             </div>
             <div class="col-4">
+                <p>
               {% if translation.validated_text %}
                 {{ translation.validated_text }}
               {% elif translation.text %}
                 {{ translation.text }}
               {% else %}
                 [Not translated yet]
+              {% endif %}
+                </p>
+              {% if translation.comment %}
+                <br>
+                <p><strong>Translation comment:</strong></p><p>{{ translation.comment }}</p>
               {% endif %}
             </div>
           <div class="col-3">

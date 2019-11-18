@@ -50,13 +50,13 @@ class TranslatorLanguagesForm(forms.ModelForm):
 class TranslationForm(forms.ModelForm):
     class Meta:
         model = Translation
-        fields = ('text', )
+        fields = ('text', 'comment', )
 
 
 class ValidationForm(forms.ModelForm):
     class Meta:
         model = Translation
-        fields = ('validated_text', )
+        fields = ('validated_text', 'comment', )
 
 
 class TaskCreateForm(forms.ModelForm):
@@ -68,7 +68,7 @@ class TaskCreateForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ('name', 'source_content', 'priority', 'source_language', )
+        fields = ('name', 'source_content', 'priority', 'source_language', 'instructions', )
 
 
 class TaskUpdateForm(forms.ModelForm):
@@ -80,4 +80,4 @@ class TaskUpdateForm(forms.ModelForm):
 class LanguageEditForm(forms.ModelForm):
     class Meta:
         model = Language
-        fields = ('name', 'color', )
+        fields = ('name', 'color', 'code', )

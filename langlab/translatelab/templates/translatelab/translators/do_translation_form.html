@@ -6,6 +6,9 @@
   <h2 class="mb-3">Perform translation: {{ translation.task.name }}</h2>
   <p class="lead">Source text: {{ translation.task.source_content }}</p>
   <p class="lead">Target language: {{ translation.language.name }}</p>
+  {% if translation.task.instructions %}
+    <p class="lead">Task instructions: {{ translation.task.instructions }}</p>
+  {% endif %}
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}

@@ -6,6 +6,9 @@
   <h2 class="mb-3">Validate translation: {{ translation.task.name }}</h2>
   <p class="lead">Source text: {{ translation.task.source_content }}</p>
   <p class="lead">Target language: {{ translation.language.name }}</p>
+  {% if translation.task.instructions %}
+    <p class="lead">Task instructions: {{ translation.task.instructions }}</p>
+  {% endif %}
   <p class="lead">Translated text: {{ translation.text }}</p>
   <br>
   <p>Make any necessary changes in this text field. If the text field is blank or the text matches the original translations exactly, the text is registered as <em>validated</em>.</p>
