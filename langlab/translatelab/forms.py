@@ -20,7 +20,7 @@ class SupervisorSignUpForm(UserCreationForm):
 
 class TranslatorSignUpForm(UserCreationForm):
     languages = forms.ModelMultipleChoiceField(
-        queryset=Language.objects.all(),
+        queryset=Language.objects.all().exclude(name='Unknown'),
         widget=forms.CheckboxSelectMultiple,
         required=True
     )
@@ -45,6 +45,10 @@ class TranslatorLanguagesForm(forms.ModelForm):
         widgets = {
             'languages': forms.CheckboxSelectMultiple
         }
+
+    def __init__(self, *args, **kwargs):
+        super(TranslatorLanguagesForm, self).__init__(*args, **kwargs)
+        self.fields['languages'].queryset = Language.objects.exclude(name='Unknown')
 
 
 class TranslationForm(forms.ModelForm):
@@ -81,3 +85,4 @@ class LanguageEditForm(forms.ModelForm):
     class Meta:
         model = Language
         fields = ('name', 'color', 'code', )
+

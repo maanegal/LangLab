@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 
 from ..decorators import translator_required
 from ..forms import TranslatorLanguagesForm, TranslatorSignUpForm, TranslationForm, ValidationForm
-from ..models import Task, Translator, Translation, User
+from ..models import Task, Translator, Translation, User, Language
 
 
 class TranslatorSignUpView(CreateView):

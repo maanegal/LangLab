@@ -10,7 +10,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView, 
 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm
-from ..models import Translation, Task, User, Language
+from ..models import Translation, Task, User, Language, get_sentinel_user
 from ..point_score import PointScore
 
 
@@ -37,7 +37,10 @@ class UserListView(ListView):
     template_name = 'translatelab/supervisors/user_list.html'
 
     def get_queryset(self):
-        queryset = User.objects.all().select_related('translator')
+        dummy = get_sentinel_user()  # this is a dirty hack, just to make sure that the "deleted user" is present, in case a user tries to sign up with that name
+        queryset = User.objects.all()\
+            .exclude(is_deleted=True)\
+            .select_related('translator')
         return queryset
 
 
@@ -48,6 +51,48 @@ class UserDetailsView(DetailView):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
+class UserDeleteView(DeleteView):
+    model = Language
+    template_name = 'translatelab/supervisors/user_delete_confirm.html'
+    context_object_name = 'task'
+    success_url = reverse_lazy('supervisors:user_list')
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        sentinel = get_sentinel_user()
+        transen = sentinel.translator
+        ex_trans = user.translator.translations
+        for t in ex_trans.all():
+            t.translator = transen
+            t.save()
+        ex_validations = user.translator.validated_translations
+        for t in ex_validations.all():
+            t.validator = transen
+            t.save()
+        messages.success(request, 'The user %s was deleted with success!' % user.username)
+        return super().delete(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return User.objects.all()
+
+
+@login_required
+@supervisor_required
+def user_toggle_active(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    if user.is_translator:
+        if user.is_active:
+            user.is_active = False
+        else:
+            user.is_active = True
+        user.save()
+
+    return redirect('supervisors:user_details', user.pk)
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
 class TaskListView(ListView):
     model = Task
     ordering = ('name', )
@@ -55,9 +100,7 @@ class TaskListView(ListView):
     template_name = 'translatelab/supervisors/task_change_list.html'
 
     def get_queryset(self):
-        queryset = Task.objects.all() \
-            .prefetch_related('target_languages') \
-            .select_related('source_language')
+        queryset = Task.objects.all().select_related('source_language')
         return queryset
 
 
@@ -134,14 +177,7 @@ class TaskDeleteView(DeleteView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class TaskDetailsView(DetailView):
     model = Task
-    #context_object_name = 'task'
     template_name = 'translatelab/supervisors/task_details.html'
-
-    # def get_queryset(self):
-    #     queryset = Task.objects.all() \
-    #         .prefetch_related('target_languages') \
-    #         .select_related('source_language')
-    #     return queryset
 
 
 @login_required
@@ -242,7 +278,7 @@ class LanguageEditView(CreateView):
     template_name = 'translatelab/supervisors/language_edit_form.html'
 
     def get_context_data(self, **kwargs):
-        kwargs['languages'] = Language.objects.all()
+        kwargs['languages'] = Language.objects.all().exclude(name='Unknown')
         return super().get_context_data(**kwargs)
 
     def form_valid(self, form):

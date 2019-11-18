@@ -22,5 +22,12 @@
 
 <p>Points earned: {{ user.translator.points_earned }}</p>
 
+    {% if user.is_translator and user.is_active %}
+    <a href="{% url 'supervisors:user_toggle_active' user.pk %}" class="btn btn-warning" role="button">Deactivate user</a>
+    <a href="{% url 'supervisors:user_delete' user.pk %}" class="btn btn-danger" role="button">Delete user</a>
+    {% elif user.is_translator and not user.is_active %}
+      <a href="{% url 'supervisors:user_toggle_active' user.pk %}" class="btn btn-success" role="button">Activate user</a>
+    {% endif %}
+
   </div>
 {% endblock %}

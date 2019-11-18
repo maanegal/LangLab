@@ -7,7 +7,13 @@ from django.contrib.auth import get_user_model
 
 
 def get_sentinel_user():
-    return get_user_model().objects.get_or_create(username='Deleted user')[0]
+    user = get_user_model().objects.get_or_create(username='Deleted user')[0]
+    user.is_translator = True
+    user.is_deleted = True
+    user.is_active = False
+    user.save()
+    Translator.objects.get_or_create(user=user)
+    return user
 
 
 def get_sentinel_language():
@@ -17,6 +23,7 @@ def get_sentinel_language():
 class User(AbstractUser):
     is_translator = models.BooleanField(default=False)
     is_supervisor = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
 
 class Language(models.Model):
@@ -35,7 +42,7 @@ class Language(models.Model):
 
 
 class Translator(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
     points_earned = models.IntegerField(default=0)
 
