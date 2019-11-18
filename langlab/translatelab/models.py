@@ -1,8 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.html import escape, mark_safe
+from django.conf import settings
+from django.contrib.auth import get_user_model
 #from colorful.fields import RGBColorField
-from .point_score import PointScore
+
+
+def get_sentinel_user():
+    return get_user_model().objects.get_or_create(username='deleted')[0]
 
 
 class User(AbstractUser):
@@ -12,6 +17,7 @@ class User(AbstractUser):
 
 class Language(models.Model):
     name = models.CharField(max_length=30)
+    code = models.CharField(max_length=5, default='')
     color = models.CharField(max_length=7, default='#007bff')
 
     def __str__(self):
@@ -25,7 +31,7 @@ class Language(models.Model):
 
 
 class Translator(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), primary_key=True)
     languages = models.ManyToManyField(Language, related_name='qualified_translators')  # !! goal: languages spoken (add 'through' profiency)
     points_earned = models.IntegerField(default=0)
 
@@ -34,9 +40,10 @@ class Translator(models.Model):
 
 
 class Task(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')  # !! rename
+    owner = models.ForeignKey(User, settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), related_name='tasks')  # !! rename
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
     source_content = models.TextField()  # !! should probably be called source_text
+    instructions = models.TextField(default='', blank=True)
     target_languages = models.ManyToManyField(Language, related_name='tasks_target', blank=True)
     source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='tasks_source', null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -80,11 +87,12 @@ class Translation(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='translations', null=True)  # !! rename: task
     text = models.TextField()  # !! rename: translated text, make blank=True
     validated_text = models.TextField(blank=True)
+    comment = models.TextField(default='', blank=True)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='translations', null=True)
-    translator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='translations', null=True)
+    translator = models.ForeignKey(Translator, settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), related_name='translations', null=True)
     translation_time_started = models.DateTimeField(null=True, blank=True)
     translation_time_finished = models.DateTimeField(null=True, blank=True)
-    validator = models.ForeignKey(Translator, on_delete=models.CASCADE, related_name='validated_translations', null=True)
+    validator = models.ForeignKey(Translator, settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), related_name='validated_translations', null=True)
     validation_time_started = models.DateTimeField(null=True, blank=True)
     validation_time_finished = models.DateTimeField(null=True, blank=True)
 
