@@ -14,7 +14,15 @@
 <p>Date joined: {{ request.user.date_joined|date }}</p>
 <p>Last login: {{ request.user.last_login }}</p>
 
-<p>Points earned: {{ request.user.translator.points_earned }}</p>
+    {% if request.user.is_translator %}
+    <p>Points earned: {{ request.user.translator.points_earned }}</p>
+    {% endif %}
+
+<p>Email address: {{ request.user.email }}
+    <a href="{% url 'user_change_email'  %}" class="btn btn-outline-secondary" role="button">Change</a>
+</p>
+
+    <a href="{% url 'user_change_password'  %}" class="btn btn-outline-secondary" role="button">Change password</a>
 
   </div>
 {% endblock %}

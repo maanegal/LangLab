@@ -4,6 +4,8 @@ from .views import translatelab, translators, supervisors
 urlpatterns = [
     path('', translatelab.home, name='home'),
     path('profile/', translatelab.user_profile, name='user_profile'),
+    path('profile/change_password/', translatelab.user_change_password, name='user_change_password'),
+    path('profile/change_email/', translatelab.UpdateProfile.as_view(), name='user_change_email'),
 
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),

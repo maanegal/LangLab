@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import EmailField
 from django.db import transaction
 from django.forms.utils import ValidationError
 
@@ -7,11 +8,15 @@ from .models import (Translation, Translator, Language, User, Task)
 
 
 class SupervisorSignUpForm(UserCreationForm):
+    email = EmailField(label="Email address", required=True, help_text="Required.")
+
     class Meta(UserCreationForm.Meta):
         model = User
+        fields = ("username", "email", "password1", "password2")
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
         user.is_supervisor = True
         if commit:
             user.save()
@@ -24,18 +29,27 @@ class TranslatorSignUpForm(UserCreationForm):
         widget=forms.CheckboxSelectMultiple,
         required=True
     )
+    email = EmailField(label="Email address", required=True, help_text="Required.")
 
     class Meta(UserCreationForm.Meta):
         model = User
+        fields = ("username", "email", "password1", "password2")
 
     @transaction.atomic
     def save(self):
         user = super().save(commit=False)
         user.is_translator = True
+        user.email = self.cleaned_data["email"]
         user.save()
         translator = Translator.objects.create(user=user)
         translator.languages.add(*self.cleaned_data.get('languages'))
         return user
+
+
+class UserEmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('email',)
 
 
 class TranslatorLanguagesForm(forms.ModelForm):
