@@ -55,10 +55,15 @@ class TaskListView(ListView):
         translator = self.request.user.translator
         translator_languages = translator.languages.values_list('pk', flat=True)
 
-        queryset_trans = Translation.objects.filter(language__in=translator_languages) \
+        queryset_trans = Translation.objects.filter(language__in=translator_languages)\
+            .exclude(task__source_language__in=translator_languages)\
             .exclude(translator__isnull=False)
         queryset_valid = Translation.objects.filter(language__in=translator_languages) \
-            .exclude(translator__isnull=True).exclude(validator__isnull=False).exclude(translator=translator)
+            .exclude(task__source_language__in=translator_languages)\
+            .exclude(translator__isnull=True) \
+            .exclude(translation_time_finished__isnull=True) \
+            .exclude(validator__isnull=False)\
+            .exclude(translator=translator)
         queryset = queryset_trans | queryset_valid
         return queryset
 
@@ -162,3 +167,21 @@ def validate_task(request, pk):
         'translation': translation,
         'form': form,
     })
+
+
+@login_required
+@translator_required
+def translation_cancel(request, pk):
+    translation = get_object_or_404(Translation, pk=pk)
+    user = request.user
+
+    if translation.translator_id == user.id and not translation.translation_time_finished:
+        translation.translator = None
+        translation.translation_time_started = None
+        translation.save()
+    elif translation.validator_id == user.id and not translation.validation_time_finished:
+        translation.validator = None
+        translation.validation_time_started = None
+        translation.save()
+
+    return redirect('translators:task_list')

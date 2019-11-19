@@ -12,6 +12,7 @@ urlpatterns = [
         path('languages/', translators.TranslatorLanguagesView.as_view(), name='translator_languages'),
         path('taken/', translators.DoneTaskListView.as_view(), name='taken_task_list'),
         path('task/translation/<int:pk>/', translators.translate_task, name='translate_task'),
+        path('task/translation/<int:pk>/cancel', translators.translation_cancel, name='translation_cancel'),
         path('task/validation/<int:pk>/', translators.validate_task, name='validate_task'),
     ], 'translatelab'), namespace='translators')),
 
@@ -31,6 +32,7 @@ urlpatterns = [
         path('task/<int:pk>/approve/', supervisors.task_approve, name='task_approve'),
         path('task/<int:pk>/translation/add/<int:language_pk>/', supervisors.translation_add, name='translation_add'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/', supervisors.translation_change, name='translation_change'),
+        path('task/<int:task_pk>/translation/<int:translation_pk>/cancel/', supervisors.translation_cancel, name='translation_cancel'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/delete/', supervisors.TranslationDeleteView.as_view(), name='translation_delete'),
     ], 'translatelab'), namespace='supervisors')),
 ]

@@ -29,7 +29,7 @@ class User(AbstractUser):
 class Language(models.Model):
     name = models.CharField(max_length=30)
     code = models.CharField(max_length=5, default='')
-    color = models.CharField(max_length=7, default='#007bff')
+    # color = models.CharField(max_length=7, default='#007bff')  # !! remove this
 
     def __str__(self):
         return self.name

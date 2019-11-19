@@ -98,5 +98,5 @@ class TaskUpdateForm(forms.ModelForm):
 class LanguageEditForm(forms.ModelForm):
     class Meta:
         model = Language
-        fields = ('name', 'color', 'code', )
+        fields = ('name', 'code', )
 

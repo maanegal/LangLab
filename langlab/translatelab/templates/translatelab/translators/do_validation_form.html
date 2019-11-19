@@ -3,7 +3,9 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h2 class="mb-3">Validate translation: {{ translation.task.name }}</h2>
+  <h2 class="mb-3">Validate translation: {{ translation.task.name }}
+  <a href="{% url 'translators:translation_cancel' translation.pk %}" class="btn btn-danger float-right" role="button">Cancel</a>
+  </h2>
   <p class="lead">Source text: {{ translation.task.source_content }}</p>
   <p class="lead">Target language: {{ translation.language.name }}</p>
   {% if translation.task.instructions %}
@@ -16,6 +18,5 @@
     {% csrf_token %}
     {{ form|crispy }}
     <button type="submit" class="btn btn-success">Save and finish</button>
-    <a href="{% url 'translators:task_list' %}" class="btn btn-outline-secondary" role="button">Return without saving</a>
   </form>
 {% endblock %}

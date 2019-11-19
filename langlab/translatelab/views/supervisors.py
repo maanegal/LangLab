@@ -244,6 +244,23 @@ def translation_change(request, task_pk, translation_pk):
     })
 
 
+@login_required
+@supervisor_required
+def translation_cancel(request, task_pk, translation_pk):
+    translation = get_object_or_404(Translation, pk=translation_pk)
+
+    if translation.translator and not translation.translation_time_finished:
+        translation.translator = None
+        translation.translation_time_started = None
+        translation.save()
+    elif translation.validator and not translation.validation_time_finished:
+        translation.validator = None
+        translation.validation_time_started = None
+        translation.save()
+
+    return redirect('supervisors:task_details', task_pk)
+
+
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class TranslationDeleteView(DeleteView):
     model = Translation
