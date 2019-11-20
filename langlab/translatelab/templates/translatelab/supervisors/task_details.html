@@ -13,7 +13,7 @@
     {% if task.approved == False %}
     <a href="{% url 'supervisors:task_change' task.pk %}" class="btn btn-primary float-right" role="button">Edit task</a>
     {% elif task.approved == True %}
-      <p class="btn btn-success float-right">Completed</p>
+    <a href="{% url 'supervisors:csv_export_single' task.pk %}" class="btn btn-success float-right" role="button">Export completed task</a>
     {% endif %}
   </h2>
 
@@ -72,31 +72,24 @@
               {{ translation.language.get_html_badge }}
             </div>
             <div class="col-4">
-                <p>
-              {% if translation.validated_text %}
-                {{ translation.validated_text }}
-              {% elif translation.text %}
-                {{ translation.text }}
-              {% else %}
-                [Not translated yet]
-              {% endif %}
-                </p>
-              {% if translation.comment %}
-                <br>
-                <p><strong>Translation comment:</strong></p><p>{{ translation.comment }}</p>
-              {% endif %}
+              <p>
+                {% if translation.validated_text %}
+                  {{ translation.validated_text }}
+                {% elif translation.text %}
+                  {{ translation.text }}
+                {% else %}
+                  [Not translated yet]
+                {% endif %}
+              </p>
             </div>
           <div class="col-2">
               {% if translation.translation_time_started and translation.translation_time_finished %}
                 <p><em>Finished</em></p>
                 <p>By <strong>{{translation.translator}}</strong></p>
-                <p>Started at {{translation.translation_time_started}}</p>
-                <p>Finished at {{translation.translation_time_finished}}</p>
                 <p>Time spent: {{translation.translation_time_started|timesince:translation.translation_time_finished}}</p>
               {% elif translation.translation_time_started and not translation.translation_time_finished %}
                 <p><em>In progress</em></p>
                 <p>By <strong>{{translation.translator}}</strong></p>
-                <p>Started at {{translation.translation_time_started}}</p>
                 <p>Time spent: {{translation.translation_time_started|timesince}}</p>
                 <a href="{% url 'supervisors:translation_cancel' task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
               {% else %}
@@ -107,13 +100,10 @@
               {% if translation.validation_time_started and translation.validation_time_finished %}
                 <p><em>Finished</em></p>
                 <p>By <strong>{{translation.validator}}</strong></p>
-                <p>Started at {{translation.validation_time_started}}</p>
-                <p>Finished at {{translation.validation_time_finished}}</p>
                 <p>Time spent: {{translation.validation_time_started|timesince:validation.translation_time_finished}}</p>
               {% elif translation.validation_time_started and not translation.validation_time_finished %}
                 <p><em>In progress</em></p>
                 <p>By <strong>{{translation.validator}}</strong></p>
-                <p>Started at {{translation.validation_time_started}}</p>
                 <p>Time spent: {{translation.validation_time_started|timesince}}</p>
                 <a href="{% url 'supervisors:translation_cancel' task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
               {% else %}

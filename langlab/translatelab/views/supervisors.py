@@ -330,7 +330,7 @@ class LanguageDeleteView(DeleteView):
 
 @login_required
 @supervisor_required
-def task_csv_export(request):
+def task_csv_export_multi(request):
     tasks = Task.objects.all()
     if request.method == 'POST':
         list_of_ids = request.POST.getlist('task_list')
@@ -341,3 +341,11 @@ def task_csv_export(request):
     return render(request, 'translatelab/supervisors/task_csv_export.html', {
         'tasks': tasks
     })
+
+
+@login_required
+@supervisor_required
+def task_csv_export_single(request, task_pk):
+    task = get_object_or_404(Task, pk=task_pk)
+    response = csv_export([task])
+    return response

@@ -88,6 +88,10 @@ class TaskCreateForm(forms.ModelForm):
         model = Task
         fields = ('name', 'source_content', 'priority', 'source_language', 'instructions', )
 
+    def __init__(self, *args, **kwargs):
+        super(TaskCreateForm, self).__init__(*args, **kwargs)
+        self.fields['source_language'].queryset = Language.objects.exclude(name='Unknown')
+
 
 class TaskUpdateForm(forms.ModelForm):
     class Meta:

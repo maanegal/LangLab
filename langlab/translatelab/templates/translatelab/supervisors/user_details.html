@@ -17,10 +17,13 @@
     Supervisor
     {% endif %}
 
-<p>Date joined: {{ user.date_joined|date }}</p>
-<p>Last login: {{ user.last_login }}</p>
+    <p>Date joined: {{ user.date_joined|date }}</p>
+    <p>Last login: {{ user.last_login }}</p>
 
-<p>Points earned: {{ user.translator.points_earned }}</p>
+    {% if user.is_translator %}
+    <p>Points earned: {{ user.translator.points_earned }}</p>
+    {% endif %}
+
 
     {% if user.is_translator and user.is_active %}
     <a href="{% url 'supervisors:user_toggle_active' user.pk %}" class="btn btn-warning" role="button">Deactivate user</a>

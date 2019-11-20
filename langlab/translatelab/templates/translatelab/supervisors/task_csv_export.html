@@ -11,6 +11,9 @@
         <li><label><input type="checkbox" name="task_list" value="{{task.id}}">{{task.name}}</label></li>
     {% endfor %}
     </ul>
+  <button type="button" onclick="select_all()" class="btn btn-secondary btn-sm">Select All</button>
+    <button type="button" onclick="deselect_all()" class="btn btn-secondary btn-sm">Clear</button>
+    <br><br>
     <button type="submit" class="btn btn-success">Download</button>
   </form>
 {% endblock %}
