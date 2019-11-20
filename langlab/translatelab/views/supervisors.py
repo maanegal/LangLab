@@ -2,16 +2,17 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
 
 from ..decorators import supervisor_required
-from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm
+from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm, \
+    TaskSelectForm
 from ..models import Translation, Task, User, Language, get_sentinel_user
 from ..point_score import PointScore
+from ..csv_data import csv_export
 
 
 class SupervisorSignUpView(CreateView):
@@ -325,3 +326,18 @@ class LanguageDeleteView(DeleteView):
     model = Language
     template_name = 'translatelab/supervisors/language_delete_confirm.html'
     success_url = reverse_lazy('supervisors:languages_edit')
+
+
+@login_required
+@supervisor_required
+def task_csv_export(request):
+    tasks = Task.objects.all()
+    if request.method == 'POST':
+        list_of_ids = request.POST.getlist('task_list')
+        task_list = Task.objects.filter(id__in=list_of_ids)
+        response = csv_export(task_list)
+        return response
+
+    return render(request, 'translatelab/supervisors/task_csv_export.html', {
+        'tasks': tasks
+    })

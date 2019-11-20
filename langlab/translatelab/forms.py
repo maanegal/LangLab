@@ -100,3 +100,11 @@ class LanguageEditForm(forms.ModelForm):
         model = Language
         fields = ('name', 'code', )
 
+
+class TaskSelectForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ('name', )
+        widgets = {
+            'name': forms.CheckboxSelectMultiple
+        }

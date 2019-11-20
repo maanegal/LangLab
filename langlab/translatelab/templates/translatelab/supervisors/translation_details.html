@@ -7,8 +7,9 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">My tasks</a></li>
       <li class="breadcrumb-item"><a href="{% url 'supervisors:task_details' translation.task.pk %}">{{ translation.task.name }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ translation.text }}</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ translation.language }}</li>
     </ol>
   </nav>
   <h2 class="mb-3">{{ translation.language }}</h2>
+    <p>Translated text: {{ translation.text }}</p>
 {% endblock %}

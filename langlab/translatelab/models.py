@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.html import escape, mark_safe
 from django.conf import settings
 from django.contrib.auth import get_user_model
-#from colorful.fields import RGBColorField
+from datetime import datetime, timezone
 
 
 def get_sentinel_user():
@@ -55,7 +55,6 @@ class Task(models.Model):
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
     source_content = models.TextField()  # !! should probably be called source_text
     instructions = models.TextField(default='', blank=True)
-    # target_languages = models.ManyToManyField(Language, related_name='tasks_target', blank=True)  # !! Is this used? Maybe delete it
     source_language = models.ForeignKey(Language, on_delete=models.SET(get_sentinel_language), related_name='tasks_source', null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     time_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -109,3 +108,18 @@ class Translation(models.Model):
 
     def __str__(self):
         return self.text
+
+    def get_translation_time(self, get_seconds=False):
+        """Returns int of number of seconds spent on a translation task.
+        If the task has not been started, 0 is returned.
+        If the task has not been completed, time from now is calculated
+        !! not finished...
+        """
+        if self.translation_time_started:
+            if self.translation_time_finished:
+                td = self.translation_time_finished - self.translation_time_started
+            else:
+                td = self.translation_time_finished - datetime.now(timezone.utc)
+
+        else:
+            return 0
