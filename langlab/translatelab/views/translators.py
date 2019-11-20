@@ -56,8 +56,7 @@ class TaskListView(ListView):
         translator_languages = translator.languages.values_list('pk', flat=True)
 
         queryset_trans = Translation.objects.filter(language__in=translator_languages)\
-            .exclude(task__source_language__in=translator_languages)\
-            .exclude(translator__isnull=False)
+            .filter(task__source_language__in=translator_languages).exclude(translator__isnull=False)
         queryset_valid = Translation.objects.filter(language__in=translator_languages) \
             .exclude(task__source_language__in=translator_languages)\
             .exclude(translator__isnull=True) \

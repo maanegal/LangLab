@@ -79,7 +79,7 @@ class ValidationForm(forms.ModelForm):
 
 class TaskCreateForm(forms.ModelForm):
     languages = forms.ModelMultipleChoiceField(
-        queryset=Language.objects.all(),
+        queryset=Language.objects.all().exclude(name='Unknown'),
         required=False,
         widget=forms.CheckboxSelectMultiple,
         help_text="Target languages. Selected source language will automatically be filtered out.")

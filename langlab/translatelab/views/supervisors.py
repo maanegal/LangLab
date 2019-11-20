@@ -288,7 +288,6 @@ class TranslationDeleteView(DeleteView):
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class LanguageEditView(CreateView):
-    # !! add https://github.com/charettes/django-colorful
     model = Language
     form_class = LanguageEditForm
     context_object_name = 'languages'
