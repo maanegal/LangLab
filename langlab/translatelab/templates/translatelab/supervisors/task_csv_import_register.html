@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h2 class="mb-3">Please verify the uploaded tasks</h2>
+<form action="" method="POST">
+{% csrf_token %}
+
+{% for the_task in tasks: %}
+    {{ the_task.form|crispy }}
+    <p>As much as possible has been autofilled. If any fields are missing, please try to fill them out from the raw data
+        that was received, as shown below. If the information provided is insufficient, the task may be canceled.</p>
+    <pre>
+        Put it here
+    </pre>
+    <hr>
+{% endfor %}
+
+
+<button type="submit" class="btn btn-success">Save and add tasks</button>
+</form>
+{% endblock %}

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
+from django.http import HttpResponseRedirect
 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm, \
@@ -349,3 +350,61 @@ def task_csv_export_single(request, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     response = csv_export([task])
     return response
+
+
+@login_required
+@supervisor_required
+def task_csv_import(request):
+    if request.method == 'POST':
+        csv_file = request.FILES["csv_file"]
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'File is not CSV type')
+            return HttpResponseRedirect(reverse("supervisors:task_csv_import"))
+        # if file is too large, return
+        if csv_file.multiple_chunks():
+            messages.error(request, "Uploaded file is too big (%.2f MB)." % (csv_file.size / (1000 * 1000),))
+            return HttpResponseRedirect(reverse("supervisors:task_csv_import"))
+        # perform csv import routine
+        # save it: request.session['csv_input'] = csv_input
+        # render register page, where data is loaded: csv_input = request.session['csv_input']
+        return render(request, 'translatelab/supervisors/task_csv_import.html')
+    else:
+        return render(request, 'translatelab/supervisors/task_csv_import.html')
+
+
+@login_required
+@supervisor_required
+def task_csv_import_register(request):
+    # put all of this into ELSE?
+    csv_input = request.session['csv_input']
+    if not csv_input:
+        messages.error(request, 'Could not process data')
+        return HttpResponseRedirect(reverse("supervisors:task_csv_import"))
+
+    tasks = []
+    for c in csv_input:
+        task = Task(name=c['name'], source_content=c['source_content'], instructions=c['instructions'])
+        form = TaskCreateForm(instance=task)
+        d = {'task': task, 'form': form, 'raw_data': c}
+        tasks.append(d)
+
+    # for each item in csv_input, make an instance of Task and fill it out (don't save).
+    # then make a form = TaskCreateForm(instance=task)
+    # along with the raw info, bundle it into a dict with keys 'task', 'form', 'raw_data'
+    # make a list of each bundle, and pass it to the render request as tasks
+
+
+    task = get_object_or_404(Task, pk=task_pk)
+    translation = get_object_or_404(Translation, pk=translation_pk, task=task)
+
+    if request.method == 'POST':
+        form = TranslationForm(request.POST, instance=translation)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save()
+            messages.success(request, 'Translation saved with success!')
+            return redirect('supervisors:task_change', task.pk)
+    else:
+        form = TranslationForm(instance=translation)
+
+    return render(request, 'translatelab/supervisors/task_csv_import_register.html', {'tasks': tasks})

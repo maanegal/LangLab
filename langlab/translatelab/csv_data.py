@@ -37,3 +37,15 @@ def csv_export(task_list):
     for task in task_dict_list:
         writer.writerow(task)
     return response
+
+
+def csv_import(csv_data):
+    fieldnames = ['name', 'text', 'source language', 'target languages', 'priority', 'instructions']
+    tasks = []
+    csv_reader = csv.DictReader(csv_data)
+    for row in csv_reader:
+        missing = []
+        for field in fieldnames:
+            if not row.get('field', ''):
+                missing.append(field)
+
