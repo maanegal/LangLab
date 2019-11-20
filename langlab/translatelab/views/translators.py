@@ -94,14 +94,10 @@ def translate_task(request, pk):
     translation = get_object_or_404(Translation, pk=pk)
     translator = request.user.translator
 
-    # If this translator has performed this translation earlier. !! change this
-    #if translator.translations.filter(pk=pk).exists():
-        #return render(request, 'translatelab/translators/done_task_list.html')
-
     # If another translator has accepted the task already, redirect back to list
     if translation.translator and translation.translator != translator:
+        messages.error(request, 'This task has already been accepted by another translator.')
         return redirect('translators:task_list')
-        # !! note: give some error message/explanation here
 
     # Now, the translator has accepted the task. Register the information
     if not translation.translator:
@@ -114,11 +110,14 @@ def translate_task(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 finished_translation = form.save(commit=False)
-                finished_translation.translation_time_finished = datetime.now(timezone.utc)
+                if 'finish' in request.POST:
+                    finished_translation.translation_time_finished = datetime.now(timezone.utc)
+                    messages.success(request, 'Translation was marked as finished. It will now be validated.')
+                elif 'draft' in request.POST:
+                    messages.success(request, 'Translation was saved as draft and can be resumed later.')
                 finished_translation.save()
                 form.save_m2m()
             return redirect('translators:task_list')
-            # !! give a notice to the translator
 
     else:
         form = TranslationForm(instance=translation)
