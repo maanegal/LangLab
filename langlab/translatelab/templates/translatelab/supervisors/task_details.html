@@ -56,10 +56,10 @@
         <div class="col-4">
           <strong>Translated text</strong>
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <strong>Translation</strong>
         </div>
-        <div class="col-3">
+        <div class="col-4">
           <strong>Validated</strong>
         </div>
       </div>
@@ -86,7 +86,7 @@
                 <p><strong>Translation comment:</strong></p><p>{{ translation.comment }}</p>
               {% endif %}
             </div>
-          <div class="col-3">
+          <div class="col-2">
               {% if translation.translation_time_started and translation.translation_time_finished %}
                 <p><em>Finished</em></p>
                 <p>By <strong>{{translation.translator}}</strong></p>
@@ -103,7 +103,7 @@
                 <p><em>Pending</em></p>
               {% endif %}
           </div>
-          <div class="col-3">
+          <div class="col-2">
               {% if translation.validation_time_started and translation.validation_time_finished %}
                 <p><em>Finished</em></p>
                 <p>By <strong>{{translation.validator}}</strong></p>
@@ -119,6 +119,9 @@
               {% else %}
                 <p><em>Pending</em></p>
               {% endif %}
+          </div>
+          <div class="col-2">
+            <a href="{% url 'supervisors:translation_details' task.pk translation.pk %}" class="btn btn-secondary" role="button">Details</a>
           </div>
           </div>
         </div>

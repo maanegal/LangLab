@@ -262,6 +262,13 @@ def translation_cancel(request, task_pk, translation_pk):
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')
+class TranslationDetailsView(DetailView):
+    model = Translation
+    template_name = 'translatelab/supervisors/translation_details.html'
+    pk_url_kwarg = 'translation_pk'
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
 class TranslationDeleteView(DeleteView):
     model = Translation
     context_object_name = 'translation'
