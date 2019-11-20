@@ -16,6 +16,12 @@
 
     {% if request.user.is_translator %}
     <p>Points earned: {{ request.user.translator.points_earned }}</p>
+
+    <p>
+      Languages:{% for language in user.translator.languages.all %} {{ language.get_html_badge }}{% endfor %}
+      <a href="{% url 'translators:translator_languages' %}"><small>(update languages)</small></a>
+    </p>
+
     {% endif %}
 
 <p>Email address: {{ request.user.email }}

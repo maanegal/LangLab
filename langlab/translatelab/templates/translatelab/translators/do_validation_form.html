@@ -17,6 +17,7 @@
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
-    <button type="submit" class="btn btn-success">Save and finish</button>
+    <button type="submit" name="draft" class="btn btn-outlined-secondary">Save as draft</button>
+    <button type="submit" name="finish" class="btn btn-success">Finish translation</button>
   </form>
 {% endblock %}

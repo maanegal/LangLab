@@ -58,7 +58,7 @@ class TaskListView(ListView):
         queryset_trans = Translation.objects.filter(language__in=translator_languages)\
             .filter(task__source_language__in=translator_languages).exclude(translator__isnull=False)
         queryset_valid = Translation.objects.filter(language__in=translator_languages) \
-            .exclude(task__source_language__in=translator_languages)\
+            .filter(task__source_language__in=translator_languages)\
             .exclude(translator__isnull=True) \
             .exclude(translation_time_finished__isnull=True) \
             .exclude(validator__isnull=False)\
@@ -136,8 +136,8 @@ def validate_task(request, pk):
 
     # Make sure the validator and translator are not the same
     if translation.translator and translation.translator == validator:
+        messages.error(request, 'This task has already been accepted by another translator.')
         return redirect('translators:task_list')
-        # !! note: give some error message/explanation here
 
     # Now, the translator has accepted the task. Register the information
     if not translation.validator:
@@ -150,13 +150,16 @@ def validate_task(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 finished_validation = form.save(commit=False)
-                finished_validation.validation_time_finished = datetime.now(timezone.utc)
-                if finished_validation.validated_text == finished_validation.text:
-                    finished_validation.validated_text = ""
+                if 'finish' in request.POST:
+                    finished_validation.translation_time_finished = datetime.now(timezone.utc)
+                    messages.success(request, 'Validation was marked as finished. It will be sent to a supervisor for final approval.')
+                    if finished_validation.validated_text == finished_validation.text:
+                        finished_validation.validated_text = ""
+                elif 'draft' in request.POST:
+                    messages.success(request, 'Validation was saved as draft and can be resumed later.')
                 finished_validation.save()
                 form.save_m2m()
             return redirect('translators:task_list')
-            # !! give a notice to the translator
 
     else:
         form = ValidationForm(instance=translation, initial={'validated_text': translation.text})
