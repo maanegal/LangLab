@@ -6,11 +6,29 @@
   <h2 class="mb-3">Select tasks to export as CSV</h2>
   <form action="" method="post" novalidate>
     {% csrf_token %}
-    <ul>
-    {% for task in tasks %}
-        <li><label><input type="checkbox" name="task_list" value="{{task.id}}">{{task.name}}</label></li>
-    {% endfor %}
-    </ul>
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Task name</th>
+          <th>Source language</th>
+          <th>Target languages</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td><input type="checkbox" name="task_list" value="{{task.id}}"></td>
+          <td class="align-middle">{{task.name}}</td>
+          <td class="align-middle">{{task.source_language}}</td>
+          <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
   <button type="button" onclick="select_all()" class="btn btn-secondary btn-sm">Select All</button>
     <button type="button" onclick="deselect_all()" class="btn btn-secondary btn-sm">Clear</button>
     <br><br>

@@ -5,7 +5,7 @@
 {% block content %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">My tasks</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">Taskboard</a></li>
       <li class="breadcrumb-item"><a href="{% url 'supervisors:task_details' translation.task.pk %}">{{ translation.task.name }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Translation: {{ translation.language }}</li>
     </ol>

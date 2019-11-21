@@ -97,7 +97,7 @@ class TaskCreateForm(forms.ModelForm):
 class TaskUpdateForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ('name', 'source_content', 'priority', 'source_language', )
+        fields = ('name', 'source_content', 'priority', 'source_language', 'point_score')
 
 
 class LanguageEditForm(forms.ModelForm):
