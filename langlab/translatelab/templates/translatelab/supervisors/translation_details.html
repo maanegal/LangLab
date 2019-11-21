@@ -48,7 +48,7 @@
     <p>By <strong>{{translation.translator}}</strong></p>
     <p>Started at {{translation.translation_time_started}}</p>
     <p>Time spent: {{translation.translation_time_started|timesince}}</p>
-    <a href="{% url 'supervisors:translation_cancel' task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
+    <a href="{% url 'supervisors:translation_cancel' translation.task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
   {% else %}
     <p><em>Pending</em></p>
   {% endif %}
@@ -66,7 +66,7 @@
     <p>By <strong>{{translation.validator}}</strong></p>
     <p>Started at {{translation.validation_time_started}}</p>
     <p>Time spent: {{translation.validation_time_started|timesince}}</p>
-    <a href="{% url 'supervisors:translation_cancel' task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
+    <a href="{% url 'supervisors:translation_cancel' translation.task.pk translation.pk %}" class="btn btn-danger" role="button">Cancel</a>
   {% else %}
     <p><em>Pending</em></p>
   {% endif %}

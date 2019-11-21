@@ -102,7 +102,7 @@ class TaskUpdateForm(forms.ModelForm):
 class LanguageEditForm(forms.ModelForm):
     class Meta:
         model = Language
-        fields = ('name', 'code', )
+        fields = ('name', 'code', 'style_guide')
 
 
 class TaskSelectForm(forms.ModelForm):
