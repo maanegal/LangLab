@@ -1,9 +1,11 @@
 import csv
+from io import StringIO
 from django.http import HttpResponse
+from .models import Language
 
 
 def csv_export(task_list):
-    fieldnames = ['name', 'original text', 'original language', 'time spent']
+    fieldnames = ['name', 'original_text', 'original_language', 'time_spent']
     task_dict_list = []
 
     for task in task_list:
@@ -13,9 +15,9 @@ def csv_export(task_list):
         time_spent = 0
         td = {
             'name': name,
-            'original text': text,
-            'original language': lang,
-            'time spent': time_spent
+            'original_text': text,
+            'original_language': lang,
+            'time_spent': time_spent
               }
         for trans in task.translations.all():
             trans_name = 'translation_'+trans.language.name.lower()
@@ -41,11 +43,36 @@ def csv_export(task_list):
 
 def csv_import(csv_data):
     fieldnames = ['name', 'text', 'source language', 'target languages', 'priority', 'instructions']
+    priority_acceptable_values = [1, 2, 3, 4, 5]  # , 'Very low', 'Low', 'Default', 'High', 'Very high']
     tasks = []
-    csv_reader = csv.DictReader(csv_data)
-    for row in csv_reader:
-        missing = []
-        for field in fieldnames:
-            if not row.get('field', ''):
-                missing.append(field)
 
+    csv_data.seek(0)
+    csv_reader = csv.DictReader(StringIO(csv_data.read().decode('utf-8')))
+    for row in csv_reader:
+        task = {
+            'name': row.get('name', ''),
+            'text': row.get('text', ''),
+            'instructions': row.get('instructions', ''),
+        }
+        p = row.get('priority')
+        if p:
+            task['priority'] = int(p)
+        else:
+            task['priority'] = 3
+
+        sl = row.get('source_language', '')
+        slq = Language.objects.filter(name=sl) | Language.objects.filter(code=sl)
+        if slq:
+            task['source_language'] = slq.first().id
+        tl = row.get('target_languages', '')
+        if not tl or tl.lower() == 'all':
+            tlq = list(Language.objects.all().values_list('id', flat=True))
+        else:
+            tl_list = [x.strip() for x in tl.split(';')]
+            tl_lookup = '|'.join(tl_list)
+            tlq = list(Language.objects.filter(name__iregex=r'(' + tl_lookup + ')').exclude(name="Unknown").values_list('id', flat=True) |
+                       Language.objects.filter(code__iregex=r'(' + tl_lookup + ')').exclude(name="Unknown").values_list('id', flat=True))
+        task['target_languages'] = tlq
+        tasks.append(task)
+
+    return tasks

@@ -7,13 +7,14 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
 from django.http import HttpResponseRedirect
+from io import TextIOWrapper
 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm, \
     TaskSelectForm
 from ..models import Translation, Task, User, Language, get_sentinel_user
 from ..point_score import PointScore
-from ..csv_data import csv_export
+from ..csv_data import csv_export, csv_import
 
 
 class SupervisorSignUpView(CreateView):
@@ -365,9 +366,9 @@ def task_csv_import(request):
             messages.error(request, "Uploaded file is too big (%.2f MB)." % (csv_file.size / (1000 * 1000),))
             return HttpResponseRedirect(reverse("supervisors:task_csv_import"))
         # perform csv import routine
-        # save it: request.session['csv_input'] = csv_input
-        # render register page, where data is loaded: csv_input = request.session['csv_input']
-        return render(request, 'translatelab/supervisors/task_csv_import.html')
+        csv_input = csv_import(csv_file)
+        request.session['csv_input'] = csv_input
+        return redirect('supervisors:task_csv_import_register')
     else:
         return render(request, 'translatelab/supervisors/task_csv_import.html')
 
@@ -375,36 +376,40 @@ def task_csv_import(request):
 @login_required
 @supervisor_required
 def task_csv_import_register(request):
-    # put all of this into ELSE?
     csv_input = request.session['csv_input']
     if not csv_input:
         messages.error(request, 'Could not process data')
         return HttpResponseRedirect(reverse("supervisors:task_csv_import"))
 
     tasks = []
+    num = 1
     for c in csv_input:
-        task = Task(name=c['name'], source_content=c['source_content'], instructions=c['instructions'])
-        form = TaskCreateForm(instance=task)
-        d = {'task': task, 'form': form, 'raw_data': c}
+        task = Task(name=c['name'], source_content=c['text'], instructions=c['instructions'], priority=c['priority'])
+        if c.get('source_language', None):
+            task.source_language = Language.objects.get(id=c.get('source_language'))
+        langs = Language.objects.filter(id__in=c['target_languages']).exclude(name="Unknown")
+        form = TaskCreateForm(instance=task, initial={'languages': langs}, prefix='task'+str(num))
+        d = {'task': task, 'form': form, 'raw_data': str(c), 'num': num}
         tasks.append(d)
-
-    # for each item in csv_input, make an instance of Task and fill it out (don't save).
-    # then make a form = TaskCreateForm(instance=task)
-    # along with the raw info, bundle it into a dict with keys 'task', 'form', 'raw_data'
-    # make a list of each bundle, and pass it to the render request as tasks
-
-
-    task = get_object_or_404(Task, pk=task_pk)
-    translation = get_object_or_404(Translation, pk=translation_pk, task=task)
+        num += 1
 
     if request.method == 'POST':
-        form = TranslationForm(request.POST, instance=translation)
-        if form.is_valid():
-            with transaction.atomic():
-                form.save()
-            messages.success(request, 'Translation saved with success!')
-            return redirect('supervisors:task_change', task.pk)
-    else:
-        form = TranslationForm(instance=translation)
+        for task in tasks:
+            form = TaskCreateForm(request.POST, instance=task['task'], prefix='task'+str(task['num']))
+            print(form)
+            if form.is_valid():
+                task = form.save(commit=False)
+                task.owner = request.user
+                ps = PointScore(text=form.cleaned_data['source_content'], priority=form.cleaned_data['priority'])
+                task.word_count = ps.word_count
+                task.point_score = ps.score()
+                task.point_score_version = ps.version
+                task.save()
+                for lang in form.cleaned_data['languages']:
+                    if not lang == task.source_language:  # filter out the source language
+                        t = task.translations.create(language=lang)
+                form.save_m2m()  # save the many-to-many data for the form
+        messages.success(request, 'Tasks added')
+        return redirect('supervisors:task_change_list')
 
     return render(request, 'translatelab/supervisors/task_csv_import_register.html', {'tasks': tasks})

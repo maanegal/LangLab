@@ -28,6 +28,7 @@ urlpatterns = [
         path('task/add/', supervisors.TaskCreateView.as_view(), name='task_add'),
         path('task/export/', supervisors.task_csv_export_multi, name='csv_export'),
         path('task/import/', supervisors.task_csv_import, name='task_csv_import'),
+        path('task/import/register/', supervisors.task_csv_import_register, name='task_csv_import_register'),
         path('task/<int:pk>/', supervisors.TaskDetailsView.as_view(), name='task_details'),
         path('task/<int:pk>/edit/', supervisors.TaskUpdateView.as_view(), name='task_change'),
         path('task/<int:pk>/delete/', supervisors.TaskDeleteView.as_view(), name='task_delete'),
