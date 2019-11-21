@@ -4,6 +4,7 @@ from django.forms import EmailField
 from django.db import transaction
 from django.forms.utils import ValidationError
 
+
 from .models import (Translation, Translator, Language, User, Task)
 
 
@@ -46,10 +47,10 @@ class TranslatorSignUpForm(UserCreationForm):
         return user
 
 
-class UserEmailUpdateForm(forms.ModelForm):
+class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('email',)
+        fields = ('email', 'timezone',)
 
 
 class TranslatorLanguagesForm(forms.ModelForm):

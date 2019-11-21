@@ -24,9 +24,14 @@
 
     {% endif %}
 
-<p>Email address: {{ request.user.email }}
-    <a href="{% url 'user_change_email'  %}" class="btn btn-outline-secondary" role="button">Change</a>
-</p>
+<p>Email address:
+    {% if request.user.email %}
+        {{ request.user.email }}
+    {% else %}
+        No email set
+    {% endif%}</p>
+<p>Current timezone: {{ request.user.timezone }}</p>
+<a href="{% url 'user_update_profile'  %}" class="btn btn-outline-secondary" role="button">Update profile</a>
 
     <a href="{% url 'user_change_password'  %}" class="btn btn-outline-secondary" role="button">Change password</a>
 

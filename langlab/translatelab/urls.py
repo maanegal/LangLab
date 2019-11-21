@@ -5,7 +5,7 @@ urlpatterns = [
     path('', translatelab.home, name='home'),
     path('profile/', translatelab.user_profile, name='user_profile'),
     path('profile/change_password/', translatelab.user_change_password, name='user_change_password'),
-    path('profile/change_email/', translatelab.UpdateProfile.as_view(), name='user_change_email'),
+    path('profile/update/', translatelab.UpdateProfile.as_view(), name='user_update_profile'),
 
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),

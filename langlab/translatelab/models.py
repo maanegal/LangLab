@@ -4,6 +4,7 @@ from django.utils.html import escape, mark_safe
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from datetime import datetime, timezone
+from pytz import common_timezones
 
 
 def get_sentinel_user():
@@ -24,6 +25,8 @@ class User(AbstractUser):
     is_translator = models.BooleanField(default=False)
     is_supervisor = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+    TIMEZONE_CHOICES = [(t, t) for t in common_timezones]
+    timezone = models.CharField(max_length=100, choices=TIMEZONE_CHOICES, default=settings.TIME_ZONE)
 
 
 class Language(models.Model):

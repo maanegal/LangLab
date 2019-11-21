@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from ..models import User
-from ..forms import UserEmailUpdateForm
+from ..forms import UserUpdateForm
 
 
 class SignUpView(TemplateView):
@@ -59,30 +59,14 @@ def user_change_password(request):
 @method_decorator(login_required, name='dispatch')
 class UpdateProfile(UpdateView):
     model = User
-    form_class = UserEmailUpdateForm
-    template_name = 'translatelab/user_change_email.html'
+    form_class = UserUpdateForm
+    template_name = 'translatelab/user_update_profile.html'
     success_url = reverse_lazy('user_profile')
 
     def get_object(self):
         return self.request.user
 
     def form_valid(self, form):
-        messages.success(self.request, 'Email address updated')
+        messages.success(self.request, 'Profile updated')
         return super().form_valid(form)
 
-
-@login_required
-def user_change_email(request):
-    if request.method == 'POST':
-        form = UserEmailUpdateForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your email was successfully updated!')
-            return redirect('user_profile')
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = UserEmailUpdateForm(request.user)
-    return render(request, 'translatelab/user_change_email.html', {
-        'form': form
-    })
