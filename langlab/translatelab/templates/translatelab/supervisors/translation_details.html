@@ -7,27 +7,41 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{% url 'supervisors:task_change_list' %}">Taskboard</a></li>
       <li class="breadcrumb-item"><a href="{% url 'supervisors:task_details' translation.task.pk %}">{{ translation.task.name }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Translation: {{ translation.language }}</li>
+      <li class="breadcrumb-item active" aria-current="page">Translation details: {{ translation.language }}</li>
     </ol>
   </nav>
-  <h2 class="mb-3">Translation: {{ translation.language }}</h2>
+  <h2 class="mb-3">Translation details: {{ translation.language }}</h2>
 
   <div class="card">
     <div class="card-header">
       <p>{{ translation.language.get_html_badge }}</p>
-      <p><strong>Original text:</strong></p>
-      <p>
-        {% if translation.validated_text %}
-          {{ translation.validated_text }}
-        {% elif translation.text %}
-          {{ translation.text }}
+      <h4>Original text:</h4>
+      <p>{{ translation.task.source_content }}</p>
+
+          <h4>Translated text:</h4>
+      {% if translation.text %}
+          <p>{{ translation.text }}</p>
         {% else %}
-          [Not translated yet]
+          <p>[Not translated yet]</p>
+        {% endif %}
+          <h4>Validated text:</h4>
+        {% if translation.validated_text %}
+          <p>{{ translation.validated_text }}</p>
+        {% else %}
+          <p>[Not validated yet]</p>
+        {% endif %}
+
+      <p><strong>Translation and validation match?</strong>
+        {% if translation.text == translation.validated_text %}
+          Yes
+        {% else%}
+          No
         {% endif %}
       </p>
+
       {% if translation.comment %}
         <br>
-        <p><strong>Translation comment:</strong></p>
+        <h4>Translation comment:</h4>
         <p>{{ translation.comment }}</p>
       {% endif %}
 
