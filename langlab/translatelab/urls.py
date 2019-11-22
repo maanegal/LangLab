@@ -1,11 +1,12 @@
 from django.urls import include, path
-from .views import translatelab, translators, supervisors
+from .views import translatelab, translators, supervisors, ajax
 
 urlpatterns = [
     path('', translatelab.home, name='home'),
     path('profile/', translatelab.user_profile, name='user_profile'),
     path('profile/change_password/', translatelab.user_change_password, name='user_change_password'),
     path('profile/update/', translatelab.UpdateProfile.as_view(), name='user_update_profile'),
+    path('language/style_guide/<int:pk>/', translatelab.LanguageDetailsView.as_view(), name='language_style_guide'),
 
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),
@@ -40,6 +41,10 @@ urlpatterns = [
         path('task/<int:task_pk>/translation/<int:translation_pk>/cancel/', supervisors.translation_cancel, name='translation_cancel'),
         path('task/<int:task_pk>/translation/<int:translation_pk>/delete/', supervisors.TranslationDeleteView.as_view(), name='translation_delete'),
     ], 'translatelab'), namespace='supervisors')),
+
+    path('ajax/', include(([
+        path('language_style_guide/', ajax.load_language_styleguide, name='ajax_language_style_guide'),
+    ], 'translatelab'), namespace='ajax')),
 ]
 
 

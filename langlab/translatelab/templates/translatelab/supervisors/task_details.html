@@ -74,9 +74,9 @@
             <div class="col-4">
               <p>
                 {% if translation.validated_text %}
-                  {{ translation.validated_text }}
+                  {{ translation.validated_text|truncatewords:50 }}
                 {% elif translation.text %}
-                  {{ translation.text }}
+                  {{ translation.text|truncatewords:50 }}
                 {% else %}
                   [Not translated yet]
                 {% endif %}

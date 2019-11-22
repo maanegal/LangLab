@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from ..models import User
+from ..models import User, Language
 from ..forms import UserUpdateForm
 
 
@@ -70,3 +70,8 @@ class UpdateProfile(UpdateView):
         messages.success(self.request, 'Profile updated')
         return super().form_valid(form)
 
+
+@method_decorator(login_required, name='dispatch')
+class LanguageDetailsView(DetailView):
+    model = Language
+    template_name = 'translatelab/language_style_guide.html'
