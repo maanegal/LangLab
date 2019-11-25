@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView, DetailView
 from datetime import datetime, timezone
 
 from ..decorators import translator_required
@@ -86,6 +86,13 @@ class DoneTaskListView(ListView):
             v.tasktype = 'Validation'
         queryset = queryset_tran | queryset_val
         return queryset
+
+
+@method_decorator([login_required, translator_required], name='dispatch')
+class TranslationDetailsView(DetailView):
+    model = Translation
+    template_name = 'translatelab/translators/translation_details.html'
+    pk_url_kwarg = 'translation_pk'
 
 
 @login_required

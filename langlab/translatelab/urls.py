@@ -12,6 +12,7 @@ urlpatterns = [
         path('', translators.TaskListView.as_view(), name='task_list'),
         path('languages/', translators.TranslatorLanguagesView.as_view(), name='translator_languages'),
         path('taken/', translators.DoneTaskListView.as_view(), name='taken_task_list'),
+        path('task/<int:pk>/details/', translators.TranslationDetailsView.as_view(), name='translation_details'),
         path('task/translation/<int:pk>/', translators.translate_task, name='translate_task'),
         path('task/translation/<int:pk>/cancel', translators.translation_cancel, name='translation_cancel'),
         path('task/validation/<int:pk>/', translators.validate_task, name='validate_task'),
