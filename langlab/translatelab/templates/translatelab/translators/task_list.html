@@ -31,6 +31,7 @@
             <td>{{ translation.task.point_score }}</td>
             <td>{{ translation.task.get_priority_display }}</td>
             <td class="text-right">
+              <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
               {% if not translation.translator %}
                 <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
               {% elif not translation.validator %}

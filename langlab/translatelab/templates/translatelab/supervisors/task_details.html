@@ -36,7 +36,7 @@
         </div>
       </p>
       {% if task.get_status == 100 and task.approved == False %}
-        <p>Task has been completed. When the results have been approved, the translator and validator will receive their points. &nbsp;
+        <p>Task has been completed. When the results have been approved, the translators and validators will receive their points. &nbsp;
           <a href="{% url 'supervisors:task_approve' task.pk %}" class="btn btn-success" role="button">Approve</a>
         </p>
       {% elif task.get_status == 100 and task.approved == True %}
@@ -74,9 +74,9 @@
             <div class="col-4">
               <p>
                 {% if translation.validated_text %}
-                  {{ translation.validated_text|truncatewords:50 }}
+                  {{ translation.validated_text|truncatewords:30 }}
                 {% elif translation.text %}
-                  {{ translation.text|truncatewords:50 }}
+                  {{ translation.text|truncatewords:30 }}
                 {% else %}
                   [Not translated yet]
                 {% endif %}
@@ -100,7 +100,7 @@
               {% if translation.validation_time_started and translation.validation_time_finished %}
                 <p><em>Finished</em></p>
                 <p>By <strong>{{translation.validator}}</strong></p>
-                <p>Time spent: {{translation.validation_time_started|timesince:validation.translation_time_finished}}</p>
+                <p>Time spent: {{translation.validation_time_started|timesince:translation.validation_time_finished}}</p>
               {% elif translation.validation_time_started and not translation.validation_time_finished %}
                 <p><em>In progress</em></p>
                 <p>By <strong>{{translation.validator}}</strong></p>

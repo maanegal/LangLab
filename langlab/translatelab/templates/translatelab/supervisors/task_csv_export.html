@@ -6,6 +6,10 @@
   <h2 class="mb-3">Select tasks to export as CSV</h2>
   <form action="" method="post" novalidate>
     {% csrf_token %}
+  <button type="button" onclick="select_all()" class="btn btn-secondary btn-sm">Select All</button>
+    <button type="button" onclick="deselect_all()" class="btn btn-secondary btn-sm">Clear</button>
+    <br><br>
+
     <table class="table mb-0">
       <thead>
         <tr>
@@ -28,10 +32,6 @@
       </tbody>
     </table>
 
-
-  <button type="button" onclick="select_all()" class="btn btn-secondary btn-sm">Select All</button>
-    <button type="button" onclick="deselect_all()" class="btn btn-secondary btn-sm">Clear</button>
-    <br><br>
     <button type="submit" class="btn btn-success">Download</button>
   </form>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  {% include 'translatelab/translators/_header.html' with active='done' %}
+  {% include 'translatelab/translators/_header.html' with active='draft' %}
   <div class="card">
     <table class="table mb-0">
       <thead>
@@ -11,7 +11,7 @@
           <th>Target language</th>
           <th>Type</th>
           <th>Points</th>
-          <th>Finished at</th>
+          <th>Started at</th>
           <th></th>
         </tr>
       </thead>
@@ -28,9 +28,19 @@
               {% endif%}
             </td>
             <td>{{ translation.task.point_score }}</td>
-            <td>{{ translation.translation_time_finished }}</td>
+            <td>
+              {% if translation.translator.user == user %}{{ translation.translation_time_started }}
+              {% elif translation.validator.user == user %}{{ translation.validation_time_started }}
+              {% else %}Unknown
+              {% endif%}
+            </td>
             <td>
               <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
+              {% if translation.translator.user == user %}
+                <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Continue task</a>
+              {% elif translation.validator.user == user %}
+                <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Continue task</a>
+              {% endif %}
             </td>
           </tr>
         {% empty %}

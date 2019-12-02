@@ -51,19 +51,44 @@ class TaskListView(ListView):
     context_object_name = 'translations'
     template_name = 'translatelab/translators/task_list.html'
 
+    def get_context_data(self, **kwargs):
+        kwargs['drafts'] = 'translator'
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         translator = self.request.user.translator
         translator_languages = translator.languages.values_list('pk', flat=True)
 
         queryset_trans = Translation.objects.filter(language__in=translator_languages)\
             .filter(task__source_language__in=translator_languages).exclude(translator__isnull=False)
-        queryset_valid = Translation.objects.filter(language__in=translator_languages) \
+        queryset_valid = Translation.objects.filter(language__in=translator_languages)\
             .filter(task__source_language__in=translator_languages)\
-            .exclude(translator__isnull=True) \
-            .exclude(translation_time_finished__isnull=True) \
+            .exclude(translator__isnull=True)\
+            .exclude(translation_time_finished__isnull=True)\
             .exclude(validator__isnull=False)\
             .exclude(translator=translator)
         queryset = queryset_trans | queryset_valid
+        return queryset
+
+
+@method_decorator([login_required, translator_required], name='dispatch')
+class DraftTaskListView(ListView):
+    model = Translation
+    context_object_name = 'translations'
+    template_name = 'translatelab/translators/draft_task_list.html'
+
+    def get_queryset(self):
+        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=True) \
+            .select_related('task') \
+            .order_by('task__name')
+        for t in queryset_tran:
+            t.tasktype = 'Translation'
+        queryset_val = self.request.user.translator.validated_translations.filter(translation_time_finished__isnull=True)\
+            .select_related('task') \
+            .order_by('task__name')
+        for v in queryset_val:
+            v.tasktype = 'Validation'
+        queryset = queryset_tran | queryset_val
         return queryset
 
 
@@ -79,7 +104,7 @@ class DoneTaskListView(ListView):
             .order_by('task__name')
         for t in queryset_tran:
             t.tasktype = 'Translation'
-        queryset_val = self.request.user.translator.validated_translations.filter(translation_time_finished__isnull=False) \
+        queryset_val = self.request.user.translator.validated_translations.filter(validation_time_finished__isnull=False) \
             .select_related('task') \
             .order_by('task__name')
         for v in queryset_val:
@@ -91,8 +116,32 @@ class DoneTaskListView(ListView):
 @method_decorator([login_required, translator_required], name='dispatch')
 class TranslationDetailsView(DetailView):
     model = Translation
+    context_object_name = 'translation'
     template_name = 'translatelab/translators/translation_details.html'
-    pk_url_kwarg = 'translation_pk'
+    pk_url_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        translation = self.get_object()
+        current_status = "Available"
+        if translation.translator:
+            if translation.translator.user == user:
+                if translation.translation_time_finished:
+                    current_status = "Completed"
+                else:
+                    current_status = "Draft"
+            else:
+                current_status = "Already assigned1"
+        elif translation.validator:
+            if translation.validator.user == user:
+                if translation.validation_time_finished:
+                    current_status = "Completed"
+                else:
+                    current_status = "Draft"
+            else:
+                current_status = "Already assigned2"
+        kwargs['current_status'] = current_status
+        return super().get_context_data(**kwargs)
 
 
 @login_required
@@ -158,7 +207,7 @@ def validate_task(request, pk):
             with transaction.atomic():
                 finished_validation = form.save(commit=False)
                 if 'finish' in request.POST:
-                    finished_validation.translation_time_finished = datetime.now(timezone.utc)
+                    finished_validation.validation_time_finished = datetime.now(timezone.utc)
                     messages.success(request, 'Validation was marked as finished. It will be sent to a supervisor for final approval.')
                     if finished_validation.validated_text == finished_validation.text:
                         finished_validation.validated_text = ""

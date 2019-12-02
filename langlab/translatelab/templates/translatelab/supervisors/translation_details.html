@@ -23,19 +23,25 @@
           <p>[Not translated yet]</p>
         {% endif %}
           <h4>Validated text:</h4>
-        {% if translation.validated_text %}
+        {% if translation.validated_text and not translation.text == translation.validated_text %}
           <p>{{ translation.validated_text }}</p>
+        {% elif translation.translation_time_finished and not translation.validated_text %}
+          <p>[Matches initial translation]</p>
+        {% elif translation.translation_time_finished and translation.text == translation.validated_text %}
+          <p>[Matches initial translation]</p>
         {% else %}
           <p>[Not validated yet]</p>
         {% endif %}
 
-      <p><strong>Translation and validation match?</strong>
-        {% if translation.text == translation.validated_text %}
-          Yes
-        {% else%}
-          No
+        {% if translation.text and translation.validated_text %}
+          <p><strong>Translation and validation match?</strong>
+          {% if translation.text == translation.validated_text %}
+            Yes
+          {% else%}
+            No
+          {% endif %}
+          </p>
         {% endif %}
-      </p>
 
       {% if translation.comment %}
         <br>
@@ -72,7 +78,7 @@
     <p>By <strong>{{translation.validator}}</strong></p>
     <p>Started at {{translation.validation_time_started}}</p>
     <p>Finished at {{translation.validation_time_finished}}</p>
-    <p>Time spent: {{translation.validation_time_started|timesince:validation.translation_time_finished}}</p>
+    <p>Time spent: {{translation.validation_time_started|timesince:translation.validation_time_finished}}</p>
   {% elif translation.validation_time_started and not translation.validation_time_finished %}
     <p><em>In progress</em></p>
     <p>By <strong>{{translation.validator}}</strong></p>

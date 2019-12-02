@@ -1,16 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'translators:task_list' %}">Taskboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Translation details: {{ translation.task.name }}</li>
+    </ol>
+  </nav>
   <h2 class="mb-3">Translation details: {{ translation.task.name }}</h2>
 
-  <div class="card">
-    <div class="card-header">
-      <p>From {{ translation.task.language.get_html_badge }} to {{ translation.language.get_html_badge }} </p>
-      <h4>Original text:</h4>
-      <p>{{ translation.task.source_content }}</p>
+  <p class="lead">
+    {% if translation.translator.user == request.user %}
+      {% if translation.translation_time_finished %}
+        Completed
+      {% else %}
+        Draft
+      {% endif %}
+    {% elif translation.validator.user == request.user %}
+      {% if translation.validation_time_finished %}
+        Completed
+      {% else %}
+        Draft
+      {% endif %}
+    {% elif not translation.translator %}
+      Available
+    {% elif not translation.translator and not translation.validator %}
+      Available
+    {% else %}
+      Already assigned
+    {%endif%}
+  </p><hr>{{ current_status }}
+
+  <p>From {{ translation.task.source_language.get_html_badge }} to {{ translation.language.get_html_badge }} </p>
+
+  <p><strong>Task type:</strong>
+    {% if not translation.translator %}
+    Translation
+    {% elif translation.translation_time_finished %}
+    Validation
+    {% endif %}
+  </p>
 
 
-    </div>
-  </div>
+  <p><strong>Task priority:</strong> {{ translation.task.get_priority_display }}</p>
+  <p><strong>Point score:</strong> {{ translation.task.point_score }}</p>
+
+  <h4>Original text:</h4>
+  <p>{{ translation.task.source_content }}</p>
+
+  {% if translation.translator %}
+  <h4>Translated text:</h4>
+  <p>{{ translation.text }}</p>
+  {% endif %}
+
+  {% if translation.validator %}
+  <h4>Validated text:</h4>
+  <p>{{ translation.validated_text }}</p>
+  {% endif %}
 
 {% endblock %}

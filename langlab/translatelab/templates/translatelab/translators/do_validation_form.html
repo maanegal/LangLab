@@ -4,20 +4,20 @@
 
 {% block content %}
   <h2 class="mb-3">Validate translation: {{ translation.task.name }}
+    <p class="lead">From {{ translation.task.source_language.get_html_badge }} to {{ translation.language.get_html_badge }}</p>
   <a href="{% url 'translators:translation_cancel' translation.pk %}" class="btn btn-danger float-right" role="button">Cancel</a>
   </h2>
-  <p class="lead">Source text: {{ translation.task.source_content }}</p>
-  <p class="lead">Target language: {{ translation.language.name }}</p>
+  <h4>Source text:</h4> <p>{{ translation.task.source_content }}</p>
   {% if translation.task.instructions %}
-    <p class="lead">Task instructions: {{ translation.task.instructions }}</p>
+    <h4>Task instructions:</h4> <p>{{ translation.task.instructions }}</p>
   {% endif %}
-  <p class="lead">Translated text: {{ translation.text }}</p>
+  <h4>Translated text:</h4> <p>{{ translation.text }}</p>
   <br>
-  <p>Make any necessary changes in this text field. If the text field is blank or the text matches the original translations exactly, the text is registered as <em>validated</em>.</p>
+  <p class="lead">Make any necessary changes in this text field. If the text field is blank or the text matches the original translations exactly, the text is registered as <em>validated</em>.</p>
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
     <button type="submit" name="draft" class="btn btn-outlined-secondary">Save as draft</button>
-    <button type="submit" name="finish" class="btn btn-success">Finish translation</button>
+    <button type="submit" name="finish" class="btn btn-success">Finish validation</button>
   </form>
 {% endblock %}
