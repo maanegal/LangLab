@@ -155,8 +155,9 @@ LOGOUT_REDIRECT_URL = 'home'
 
 
 
-
-
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'ddo')
 
 # Third party apps configuration
 
