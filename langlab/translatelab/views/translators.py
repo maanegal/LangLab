@@ -123,24 +123,45 @@ class TranslationDetailsView(DetailView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         translation = self.get_object()
-        current_status = "Available"
-        if translation.translator:
-            if translation.translator.user == user:
-                if translation.translation_time_finished:
-                    current_status = "Completed"
-                else:
-                    current_status = "Draft"
-            else:
-                current_status = "Already assigned1"
-        elif translation.validator:
-            if translation.validator.user == user:
-                if translation.validation_time_finished:
-                    current_status = "Completed"
-                else:
-                    current_status = "Draft"
-            else:
-                current_status = "Already assigned2"
-        kwargs['current_status'] = current_status
+
+        translation_started = bool(translation.translation_time_started)
+        translation_finished = bool(translation.translation_time_finished)
+        if translation.translator and translation.translator.user == user:
+            translation_current_user = True
+        else:
+            translation_current_user = False
+        validation_started = bool(translation.validation_time_started)
+        validation_finished = bool(translation.validation_time_finished)
+        if translation.validator and translation.validator.user == user:
+            validation_current_user = True
+        else:
+            validation_current_user = False
+
+        states = {1: 'Available', 2: 'Already assigned', 3: 'Draft', 4: 'Completed'}
+        current_state = ''
+
+        if not translation_started:
+            current_state = states[1]
+        elif translation_started and not translation_current_user and not translation_finished:
+            current_state = states[2]
+        elif translation_started and translation_current_user and not translation_finished:
+            current_state = states[3]
+        elif translation_started and translation_current_user and translation_finished:
+            current_state = states[4]
+        elif not validation_started and not translation_current_user and not validation_finished:
+            current_state = states[1]
+        elif not validation_started and translation_current_user:
+            current_state = states[4]
+        elif validation_started and not validation_current_user:
+            current_state = states[2]
+        elif validation_started and validation_current_user and not validation_finished:
+            current_state = states[3]
+        elif validation_started and validation_current_user and validation_finished:
+            current_state = states[4]
+        else:
+            current_state = 'Error!'
+
+        kwargs['current_state'] = current_state
         return super().get_context_data(**kwargs)
 
 
