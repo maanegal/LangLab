@@ -2,38 +2,47 @@
 
 {% block content %}
   <h2 class="mb-3">Taskboard
-      <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-primary" role="button">Manage languges</a>
+      <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-primary" role="button">Manage languages</a>
       <a href="{% url 'supervisors:user_list' %}" class="btn btn-primary" role="button">Manage users</a>
       <a href="{% url 'supervisors:csv_export' %}" class="btn btn-primary" role="button">Export tasks</a>
       <a href="{% url 'supervisors:task_csv_import' %}" class="btn btn-primary" role="button">Import tasks</a>
       <a href="{% url 'supervisors:task_add' %}" class="btn btn-primary float-right" role="button">Add task</a>
   </h2>
     <br>
-<h4 class="mb-3">Ongoing</h4>
-  <div class="card">
+
+{{view.tasks_active|length}}
+{% for task in view.tasks_active %}
+Her: {{task.name}}
+{% endfor %}
+
+<div id="tasklist">
+  <h4 class="mb-3">Ongoing {{tasks|length}}
+    <input class="float-right search" placeholder="Filter list..." />
+  </h4>
+
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Task name</th>
-          <th>Source languages</th>
-          <th>Target languages</th>
-          <th>Created by</th>
-          <th>Points</th>
-          <th>Priority</th>
-          <th>Percentage completed</th>
+          <th class="sort" data-sort="name">Task name</th>
+          <th class="sort" data-sort="sourcelang">Source languages</th>
+          <th class="sort" data-sort="targetlang">Target languages</th>
+          <th class="sort" data-sort="owner">Created by</th>
+          <th class="sort" data-sort="score">Points</th>
+          <th class="sort" data-sort="priority">Priority</th>
+          <th class="sort" data-sort="status">Percentage completed</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="list">
         {% for task in tasks %}
         {% if task.get_status < 100 and task.approved == False %}
           <tr>
-            <td class="align-middle"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
-            <td class="align-middle">{{ task.source_language.get_html_badge }}</td>
-            <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
-            <td class="align-middle"><strong>{{ task.owner }}</strong></td>
-            <td class="align-middle">{{ task.point_score }}
-            <td class="align-middle">{{ task.get_priority_display }}</td>
-            <td class="align-middle">{{ task.get_status }}%
+            <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
+            <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
+            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle owner"><strong>{{ task.owner }}</strong></td>
+            <td class="align-middle score">{{ task.point_score }}
+            <td class="align-middle priority">{{ task.get_priority_display }}</td>
+            <td class="align-middle status">{{ task.get_status }}%
               <div class="progress">
                 <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100"></div>
               </div>
@@ -42,12 +51,14 @@
         {% endif %}
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="5">You haven't created any task yet.</td>
+            <td class="bg-light text-center font-italic" colspan="5">No tasks available</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-  </div>
+<ul class="pagination"></ul>
+
+        </div>
 
 <br>
 <h4 class="mb-3">Completed</h4>
@@ -91,5 +102,18 @@
       </tbody>
     </table>
   </div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+var optionsA = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'owner', 'score', 'priority', 'status' ], page: 6, pagination: true
+};
+
+var taskListA = new List('tasklist', optionsA);
+</script>
 
 {% endblock %}

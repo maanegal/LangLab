@@ -103,8 +103,16 @@ class TaskListView(ListView):
     template_name = 'translatelab/supervisors/task_change_list.html'
 
     def get_queryset(self):
-        queryset = Task.objects.all().select_related('source_language')
+        queryset = Task.objects.all().select_related('source_language', 'owner').prefetch_related('translations')
         return queryset
+
+    def tasks_active(self):
+        qs = super().get_queryset()
+        active = qs.exclude(translations__translation_time_finished__isnull=False).\
+            exclude(translations__validation_time_finished__isnull=False)#.filter(approved=False)
+        return active
+
+
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')

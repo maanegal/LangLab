@@ -97,7 +97,7 @@ class Task(models.Model):
 
 
 class Translation(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='translations', null=True)  # !! rename: task
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='translations', null=True)
     text = models.TextField()  # !! rename: translated text, make blank=True
     validated_text = models.TextField(blank=True)
     comment = models.TextField(default='', blank=True)

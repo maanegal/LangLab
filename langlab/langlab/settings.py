@@ -134,7 +134,7 @@ STATICFILES_FINDERS = [
   'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 
   # Now add our custom SimpleBulma one.
-  'django_simple_bulma.finders.SimpleBulmaFinder',
+  #'django_simple_bulma.finders.SimpleBulmaFinder',
 ]
 
 STATIC_URL = '/static/'
