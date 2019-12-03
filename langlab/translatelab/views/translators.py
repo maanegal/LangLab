@@ -51,10 +51,6 @@ class TaskListView(ListView):
     context_object_name = 'translations'
     template_name = 'translatelab/translators/task_list.html'
 
-    def get_context_data(self, **kwargs):
-        kwargs['drafts'] = 'translator'
-        return super().get_context_data(**kwargs)
-
     def get_queryset(self):
         translator = self.request.user.translator
         translator_languages = translator.languages.values_list('pk', flat=True)
