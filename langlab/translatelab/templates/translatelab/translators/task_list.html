@@ -7,7 +7,7 @@
     <span class="text-muted">| Languages:{% for language in user.translator.languages.all %} {{ language.get_html_badge }}{% endfor %}</span>
   </span>
 </h2>
-
+<hr>
 
 <ul class="nav nav-tabs nav-justified mb-3">
   <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_1', 'tasklist');" id="tab_1" class="nav-link active">Available tasks ({{translations|length}})</a></li>

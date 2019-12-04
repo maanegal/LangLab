@@ -2,13 +2,15 @@
 
 {% block content %}
   <h2 class="mb-3">Taskboard
-      <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-primary" role="button">Manage languages</a>
-      <a href="{% url 'supervisors:user_list' %}" class="btn btn-primary" role="button">Manage users</a>
+    <span class="float-right">
+      <a href="{% url 'supervisors:task_add' %}" class="btn btn-primary" role="button">Add task</a>
       <a href="{% url 'supervisors:csv_export' %}" class="btn btn-primary" role="button">Export tasks</a>
       <a href="{% url 'supervisors:task_csv_import' %}" class="btn btn-primary" role="button">Import tasks</a>
-      <a href="{% url 'supervisors:task_add' %}" class="btn btn-primary float-right" role="button">Add task</a>
+      <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-primary" role="button">Manage languages</a>
+      <a href="{% url 'supervisors:user_list' %}" class="btn btn-primary" role="button">Manage users</a>
+    </span>
   </h2>
-    <br>
+  <hr>
 
 <ul class="nav nav-tabs nav-justified mb-3">
   <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_1', 'tasklist');" id="tab_1" class="nav-link active">Active ({{view.tasks_active|length}})</a></li>
