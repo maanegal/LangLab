@@ -1,53 +1,169 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  {% include 'translatelab/translators/_header.html' with active='new' %}
-  <div id="tasklist" class="tabcontent" >
+<h2>Taskboard
+  <span class="float-right lead">
+    <span class="badge badge-secondary">Points collected: {{user.translator.points_earned}}</span>
+    <span class="text-muted">| Languages:{% for language in user.translator.languages.all %} {{ language.get_html_badge }}{% endfor %}</span>
+  </span>
+</h2>
+
+
+<ul class="nav nav-tabs nav-justified mb-3">
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_1', 'tasklist');" id="tab_1" class="nav-link active">Available tasks ({{translations|length}})</a></li>
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_2', 'draftlist');" id="tab_2" class="nav-link">Saved drafts ({{view.drafts|length}})</a></li>
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_3', 'completelist');" id="tab_3" class="nav-link">Completed tasks ({{view.completed|length}})</a></li>
+</ul>
+
+<div id="tasklist" class="tabcontent">
+  <h4 class="mb-3">Available
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h4>
+  <table class="table mb-0">
+    <thead>
+      <tr>
+        <th class="sort" data-sort="name">Task name</th>
+        <th class="sort" data-sort="sourcelang">Source language</th>
+        <th class="sort" data-sort="targetlang">Target language</th>
+        <th class="sort" data-sort="type">Type</th>
+        <th class="sort" data-sort="points">Points</th>
+        <th class="sort" data-sort="priority">Priority</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="list">
+      {% for translation in translations %}
+        <tr>
+          <td class="align-middle name">{{ translation.task.name }}</td>
+          <td class="sourcelang">{{ translation.task.source_language.get_html_badge }}</td>
+          <td class="targetlang">{{ translation.language.get_html_badge }}</td>
+          <td class="align-middle type">
+            {% if not translation.translator %}
+            <p>Translation</p>
+            {% elif not translation.validator %}
+            <p>Validation</p>
+            {% endif %}
+          </td>
+          <td class="points">{{ translation.task.point_score }}</td>
+          <td class="priority">{{ translation.task.get_priority_display }}</td>
+          <td class="text-right">
+            <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
+            {% if not translation.translator %}
+              <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+            {% elif not translation.validator %}
+              <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="bg-light text-center font-italic" colspan="5">No task matching your languages right now.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <ul class="pagination"></ul>
+</div>
+
+<div id="draftlist" class="tabcontent" style="display:none;">
+  <h4 class="mb-3">Saved drafts
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h4>
+
+  <table class="table mb-0">
+    <thead>
+      <tr>
+        <th class="sort" data-sort="name">Task name</th>
+        <th class="sort" data-sort="sourcelang">Source language</th>
+        <th class="sort" data-sort="targetlang">Target language</th>
+        <th class="sort" data-sort="type">Type</th>
+        <th class="sort" data-sort="points">Points</th>
+        <th class="sort" data-sort="time">Started at</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="list">
+      {% for translation in view.drafts %}
+        <tr>
+          <td class="name">{{ translation.task.name }}</td>
+          <td class="sourcelang">{{ translation.task.source_language.get_html_badge }}</td>
+          <td class="targetlang">{{ translation.language.get_html_badge }}</td>
+          <td class="type">
+            {% if translation.translator.user == user %}Translation
+            {% elif translation.validator.user == user %}Validation
+            {% else %}Unknown
+            {% endif%}
+          </td>
+          <td class="points">{{ translation.task.point_score }}</td>
+          <td class="time">
+            {% if translation.translator.user == user %}{{ translation.translation_time_started }}
+            {% elif translation.validator.user == user %}{{ translation.validation_time_started }}
+            {% else %}Unknown
+            {% endif%}
+          </td>
+          <td>
+            <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
+            {% if translation.translator.user == user %}
+              <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Continue task</a>
+            {% elif translation.validator.user == user %}
+              <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Continue task</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="bg-light text-center font-italic" colspan="3">There are no saved drafts</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <ul class="pagination"></ul>
+</div>
+
+<div id="completelist" class="tabcontent" style="display:none;">
+  <h4 class="mb-3">Completed tasks
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h4>
     <table class="table mb-0">
       <thead>
         <tr>
-          <th  class="sort" data-sort="name">Task name</th>
-          <th  class="sort" data-sort="sourcelang">Source language</th>
-          <th  class="sort" data-sort="targetlang">Target language</th>
-          <th  class="sort" data-sort="type">Type</th>
-          <th  class="sort" data-sort="points">Points</th>
-          <th  class="sort" data-sort="priority">Priority</th>
+          <th class="sort" data-sort="name">Task name</th>
+          <th class="sort" data-sort="sourcelang">Source language</th>
+          <th class="sort" data-sort="targetlang">Target language</th>
+          <th class="sort" data-sort="type">Type</th>
+          <th class="sort" data-sort="points">Points</th>
+          <th class="sort" data-sort="time">Finished at</th>
           <th></th>
         </tr>
       </thead>
       <tbody class="list">
-        {% for translation in translations %}
+        {% for translation in view.completed %}
           <tr>
-            <td class="align-middle name">{{ translation.task.name }}</td>
+            <td class="name">{{ translation.task.name }}</td>
             <td class="sourcelang">{{ translation.task.source_language.get_html_badge }}</td>
             <td class="targetlang">{{ translation.language.get_html_badge }}</td>
-            <td class="align-middle type">
-              {% if not translation.translator %}
-              <p>Translation</p>
-              {% elif not translation.validator %}
-              <p>Validation</p>
-              {% endif %}
+            <td class="type">
+              {% if translation.translator.user == user %}Translation
+              {% elif translation.validator.user == user %}Validation
+              {% else %}Unknown
+              {% endif%}
             </td>
             <td class="points">{{ translation.task.point_score }}</td>
-            <td class="priority">{{ translation.task.get_priority_display }}</td>
-            <td class="text-right">
+            <td class="time">{{ translation.translation_time_finished }}</td>
+            <td>
               <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
-              {% if not translation.translator %}
-                <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
-              {% elif not translation.validator %}
-                <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Start task</a>
-              {% endif %}
             </td>
           </tr>
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="5">No task matching your languages right now.</td>
+            <td class="bg-light text-center font-italic" colspan="3">You haven't completed any task yet.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-    <ul class="pagination"></ul>
-  </div>
+  <ul class="pagination"></ul>
+</div>
+
 {% endblock %}
 
 {% block javascript %}
@@ -59,13 +175,13 @@ var optionsA = {
 var taskListA = new List('tasklist', optionsA);
 
 var optionsB = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 10, pagination: true
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'type', 'points', 'time'], page: 10, pagination: true
 };
 
-var taskListB = new List('waitlist', optionsB);
+var taskListB = new List('draftlist', optionsB);
 
 var optionsC = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 10, pagination: true
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'type', 'points', 'time'], page: 10, pagination: true
 };
 
 var taskListC = new List('completelist', optionsC);

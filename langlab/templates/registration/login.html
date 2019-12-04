@@ -23,6 +23,8 @@
         {{ form.password|as_crispy_field }}
         <button type="submit" class="btn btn-primary">Log in</button>
       </form>
+      <br>
+      <a href="{% url 'password_reset' %}">Forgotten password?</a>
     </div>
   </div>
 {% endblock %}

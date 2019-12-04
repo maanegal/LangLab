@@ -68,6 +68,34 @@ class TaskListView(ListView):
         queryset = queryset_trans | queryset_valid
         return queryset
 
+    def drafts(self):
+        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=True) \
+            .select_related('task').select_related('language') \
+            .order_by('task__name')
+        for t in queryset_tran:
+            t.tasktype = 'Translation'
+        queryset_val = self.request.user.translator.validated_translations.filter(translation_time_finished__isnull=True)\
+            .select_related('task').select_related('language') \
+            .order_by('task__name')
+        for v in queryset_val:
+            v.tasktype = 'Validation'
+        queryset = queryset_tran | queryset_val
+        return queryset
+
+    def completed(self):
+        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
+            .select_related('task').select_related('language') \
+            .order_by('task__name')
+        for t in queryset_tran:
+            t.tasktype = 'Translation'
+        queryset_val = self.request.user.translator.validated_translations.filter(validation_time_finished__isnull=False) \
+            .select_related('task').select_related('language') \
+            .order_by('task__name')
+        for v in queryset_val:
+            v.tasktype = 'Validation'
+        queryset = queryset_tran | queryset_val
+        return queryset
+
 
 @method_decorator([login_required, translator_required], name='dispatch')
 class DraftTaskListView(ListView):
