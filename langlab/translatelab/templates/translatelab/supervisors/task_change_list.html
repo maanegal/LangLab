@@ -10,14 +10,16 @@
   </h2>
     <br>
 
-{{view.tasks_active|length}}
-{% for task in view.tasks_active %}
-Her: {{task.name}}
-{% endfor %}
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_1', 'tasklist');" id="tab_1" class="nav-link active">Active ({{view.tasks_active|length}})</a></li>
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_2', 'waitlist');" id="tab_2" class="nav-link">Awaiting approval ({{view.tasks_awaiting|length}})</a></li>
+  <li class="nav-item"><a href="javascript:rudrSwitchTab('tab_3', 'completelist');" id="tab_3" class="nav-link">Completed ({{view.tasks_completed|length}})</a></li>
+</ul>
 
-<div id="tasklist">
-  <h4 class="mb-3">Ongoing {{tasks|length}}
-    <input class="float-right search" placeholder="Filter list..." />
+
+<div id="tasklist" class="tabcontent" >
+  <h4 class="mb-3">Active
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
   </h4>
 
     <table class="table mb-0">
@@ -26,82 +28,108 @@ Her: {{task.name}}
           <th class="sort" data-sort="name">Task name</th>
           <th class="sort" data-sort="sourcelang">Source languages</th>
           <th class="sort" data-sort="targetlang">Target languages</th>
-          <th class="sort" data-sort="owner">Created by</th>
+          <th class="sort" data-sort="time">Created</th>
           <th class="sort" data-sort="score">Points</th>
           <th class="sort" data-sort="priority">Priority</th>
           <th class="sort" data-sort="status">Percentage completed</th>
         </tr>
       </thead>
       <tbody class="list">
-        {% for task in tasks %}
-        {% if task.get_status < 100 and task.approved == False %}
+        {% for task in view.tasks_active %}
+          <tr>
+            <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
+            <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
+            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}<br>{% endfor %}</td>
+            <td class="align-middle time">{{ task.time_created|timesince }} ago</td>
+            <td class="align-middle score">{{ task.point_score }}
+            <td class="align-middle priority">{{ task.get_priority_display }}</td>
+            <td class="align-middle status">{{ task.status|floatformat:0 }}%
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ task.status }}%;" aria-valuenow="{{ task.status|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="bg-light text-center font-italic" colspan="7">No active tasks</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  <ul class="pagination"></ul>
+</div>
+
+<div id="waitlist" class="tabcontent" style="display:none;">
+  <h4 class="mb-3">Awaiting approval
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h4>
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th class="sort" data-sort="name">Task name</th>
+          <th class="sort" data-sort="sourcelang">Source languages</th>
+          <th class="sort" data-sort="targetlang">Target languages</th>
+          <th>Finished</th>
+          <th>Points</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody class="list">
+        {% for task in view.tasks_awaiting %}
           <tr>
             <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
             <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
-            <td class="align-middle owner"><strong>{{ task.owner }}</strong></td>
-            <td class="align-middle score">{{ task.point_score }}
-            <td class="align-middle priority">{{ task.get_priority_display }}</td>
-            <td class="align-middle status">{{ task.get_status }}%
-              <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-            </td>
-          </tr>
-        {% endif %}
-        {% empty %}
-          <tr>
-            <td class="bg-light text-center font-italic" colspan="5">No tasks available</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-<ul class="pagination"></ul>
-
-        </div>
-
-<br>
-<h4 class="mb-3">Completed</h4>
-  <div class="card">
-    <table class="table mb-0">
-      <thead>
-        <tr>
-          <th>Task name</th>
-          <th>Source languages</th>
-          <th>Target languages</th>
-          <th>Created by</th>
-          <th>Points</th>
-          <th>Priority</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in tasks %}
-        {% if task.get_status == 100 %}
-          <tr>
-            <td class="align-middle"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
-            <td class="align-middle">{{ task.source_language.get_html_badge }}</td>
-            <td class="align-middle">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
             <td class="align-middle"><strong>{{ task.owner }}</strong></td>
             <td class="align-middle">{{ task.point_score }}
             <td class="align-middle">{{ task.get_priority_display }}</td>
-            <td class="align-middle">
-                {% if task.approved == False %}
-                    <p><strong>Awaiting approval</strong></p>
-                {% elif task.approved == True %}
-                    <p>Approved</p>
-                {% endif %}
             </td>
           </tr>
-        {% endif %}
         {% empty %}
           <tr>
-            <td class="bg-light text-center font-italic" colspan="5">You haven't created any task yet.</td>
+            <td class="bg-light text-center font-italic" colspan="6">No tasks await approval</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-  </div>
+  <ul class="pagination"></ul>
+</div>
+
+<div id="completelist" class="tabcontent" style="display:none;">
+  <h4 class="mb-3">Completed
+    <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h4>
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th class="sort" data-sort="name">Task name</th>
+          <th class="sort" data-sort="sourcelang">Source languages</th>
+          <th class="sort" data-sort="targetlang">Target languages</th>
+          <th>Finished</th>
+          <th>Points</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody class="list">
+        {% for task in view.tasks_completed %}
+          <tr>
+            <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
+            <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
+            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle"><strong>{{ task.owner }}</strong></td>
+            <td class="align-middle">{{ task.point_score }}
+            <td class="align-middle">{{ task.get_priority_display }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="bg-light text-center font-italic" colspan="6">No tasks have been completed</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  <ul class="pagination"></ul>
+</div>
+
 
 
 {% endblock %}
@@ -110,10 +138,22 @@ Her: {{task.name}}
 {% block javascript %}
 <script>
 var optionsA = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'owner', 'score', 'priority', 'status' ], page: 6, pagination: true
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time', 'score', 'priority', 'status' ], page: 6, pagination: true
 };
 
 var taskListA = new List('tasklist', optionsA);
+
+var optionsB = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
+};
+
+var taskListB = new List('waitlist', optionsB);
+
+var optionsC = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
+};
+
+var taskListC = new List('completelist', optionsC);
 </script>
 
 {% endblock %}

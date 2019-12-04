@@ -65,35 +65,12 @@
         </div>
       </div>
     </div>
-<ul>
-	<li><a href="javascript:rudrSwitchTab('tb_1', 'content_1');" id="tb_1" class="tabmenu active">Tab 1</a></li>
-	<li><a href="javascript:rudrSwitchTab('tb_2', 'content_2');" id="tb_2" class="tabmenu">Tab 2</a></li>
-</ul>
 
-<div id="content_1" class="tabcontent">
-	Content of the first tab.
-</div>
-<div id="content_2" class="tabcontent" style="display:none;">
-	Content of the second tab.
-</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
     <script src="{% static 'js/app.js' %}"></script>
-    <script>
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-      })
-
-      function select_all()  {
-         $('input[type=checkbox]').prop('checked', true);
-      }
-
-      function deselect_all()  {
-         $('input[type=checkbox]').prop('checked', false);
-      }
-    </script>
   {% block javascript %}{% endblock %}
   </body>
 </html>

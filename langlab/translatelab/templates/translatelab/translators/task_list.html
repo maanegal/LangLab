@@ -2,34 +2,34 @@
 
 {% block content %}
   {% include 'translatelab/translators/_header.html' with active='new' %}
-  <div class="card">
+  <div id="tasklist" class="tabcontent" >
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Task name</th>
-          <th>Source language</th>
-          <th>Target language</th>
-          <th>Type</th>
-          <th>Points</th>
-          <th>Priority</th>
+          <th  class="sort" data-sort="name">Task name</th>
+          <th  class="sort" data-sort="sourcelang">Source language</th>
+          <th  class="sort" data-sort="targetlang">Target language</th>
+          <th  class="sort" data-sort="type">Type</th>
+          <th  class="sort" data-sort="points">Points</th>
+          <th  class="sort" data-sort="priority">Priority</th>
           <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="list">
         {% for translation in translations %}
           <tr>
-            <td class="align-middle">{{ translation.task.name }}</td>
-            <td>{{ translation.task.source_language.get_html_badge }}</td>
-            <td>{{ translation.language.get_html_badge }}</td>
-            <td class="align-middle">
+            <td class="align-middle name">{{ translation.task.name }}</td>
+            <td class="sourcelang">{{ translation.task.source_language.get_html_badge }}</td>
+            <td class="targetlang">{{ translation.language.get_html_badge }}</td>
+            <td class="align-middle type">
               {% if not translation.translator %}
               <p>Translation</p>
               {% elif not translation.validator %}
               <p>Validation</p>
               {% endif %}
             </td>
-            <td>{{ translation.task.point_score }}</td>
-            <td>{{ translation.task.get_priority_display }}</td>
+            <td class="points">{{ translation.task.point_score }}</td>
+            <td class="priority">{{ translation.task.get_priority_display }}</td>
             <td class="text-right">
               <a href="{% url 'translators:translation_details' translation.pk %}" class="btn btn-secondary" role="button">Details</a>
               {% if not translation.translator %}
@@ -46,5 +46,29 @@
         {% endfor %}
       </tbody>
     </table>
+    <ul class="pagination"></ul>
   </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+var optionsA = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'points', 'priority' ], page: 10, pagination: true
+};
+
+var taskListA = new List('tasklist', optionsA);
+
+var optionsB = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 10, pagination: true
+};
+
+var taskListB = new List('waitlist', optionsB);
+
+var optionsC = {
+  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 10, pagination: true
+};
+
+var taskListC = new List('completelist', optionsC);
+</script>
+
 {% endblock %}

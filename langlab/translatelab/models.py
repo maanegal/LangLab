@@ -53,9 +53,20 @@ class Translator(models.Model):
         return self.user.username
 
 
+class Client(models.Model):
+    name = models.CharField(max_length=100)
+    points_owed = models.IntegerField(default=0)
+    email = models.EmailField(max_length=70, blank=True)
+    website = models.URLField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Task(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), related_name='tasks')  # !! rename
     name = models.CharField(max_length=255)  # !! make this into the source name. Eventually, a ForeignKey
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='tasks', null=True)
     source_content = models.TextField()  # !! should probably be called source_text
     instructions = models.TextField(default='', blank=True)
     source_language = models.ForeignKey(Language, on_delete=models.SET(get_sentinel_language), related_name='tasks_source', null=True)
@@ -76,6 +87,7 @@ class Task(models.Model):
     point_score_version = models.IntegerField(default=0)
     word_count = models.IntegerField(default=0)
     approved = models.BooleanField(default=False)
+    status = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -93,6 +105,8 @@ class Task(models.Model):
                     score += 1
             total_score += score
         status = (total_score / max_score) * 100
+        self.status = status
+        self.save()
         return int(status)
 
 
@@ -111,6 +125,11 @@ class Translation(models.Model):
 
     def __str__(self):
         return self.text
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.task:
+            self.task.get_status()
 
     def get_translation_time(self, get_seconds=False):
         """Returns int of number of seconds spent on a translation task.

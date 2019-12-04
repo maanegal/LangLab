@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
 from django.http import HttpResponseRedirect
+from django.db.models.functions import Lower
 from io import TextIOWrapper
 
 from ..decorators import supervisor_required
@@ -35,7 +36,6 @@ class SupervisorSignUpView(CreateView):
 @method_decorator([login_required, supervisor_required], name='dispatch')
 class UserListView(ListView):
     model = User
-    ordering = ('name', )
     context_object_name = 'users'
     template_name = 'translatelab/supervisors/user_list.html'
 
@@ -43,7 +43,7 @@ class UserListView(ListView):
         dummy = get_sentinel_user()  # this is a dirty hack, just to make sure that the "deleted user" is present, in case a user tries to sign up with that name
         queryset = User.objects.all()\
             .exclude(is_deleted=True)\
-            .select_related('translator')
+            .select_related('translator').order_by(Lower('username'))
         return queryset
 
 
@@ -108,11 +108,18 @@ class TaskListView(ListView):
 
     def tasks_active(self):
         qs = super().get_queryset()
-        active = qs.exclude(translations__translation_time_finished__isnull=False).\
-            exclude(translations__validation_time_finished__isnull=False)#.filter(approved=False)
+        active = qs.filter(status__lt=100, approved=False).order_by('-time_created')
         return active
 
+    def tasks_awaiting(self):
+        qs = super().get_queryset()
+        awaiting = qs.filter(status=100, approved=False)
+        return awaiting
 
+    def tasks_completed(self):
+        qs = super().get_queryset()
+        completed = qs.filter(approved=True)
+        return completed
 
 
 @method_decorator([login_required, supervisor_required], name='dispatch')

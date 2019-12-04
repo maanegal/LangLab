@@ -32,14 +32,14 @@
       <p><strong>Point score:</strong> {{ task.point_score }}</p>
       <p><strong>Percentage completed:</strong>
         <div class="progress">
-          <div class="progress-bar" role="progressbar" style="width: {{ task.get_status }}%;" aria-valuenow="{{ task.get_status }}" aria-valuemin="0" aria-valuemax="100">{{ task.get_status }}%</div>
+          <div class="progress-bar" role="progressbar" style="width: {{ task.status }}%;" aria-valuenow="{{ task.status|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">{{ task.status|floatformat:0 }}%</div>
         </div>
       </p>
-      {% if task.get_status == 100 and task.approved == False %}
+      {% if task.status == 100 and task.approved == False %}
         <p>Task has been completed. When the results have been approved, the translators and validators will receive their points. &nbsp;
           <a href="{% url 'supervisors:task_approve' task.pk %}" class="btn btn-success" role="button">Approve</a>
         </p>
-      {% elif task.get_status == 100 and task.approved == True %}
+      {% elif task.status == 100 and task.approved == True %}
       <p>Task has been approved and points have been awarded.</p>
       {% endif %}
     </div>

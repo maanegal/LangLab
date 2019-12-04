@@ -1,45 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div id="users">
   <h2 class="mb-3">Manage users
+      <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
   </h2>
   <div class="card">
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Date joined</th>
-          <th>Last login</th>
-          <th>Translator points</th>
-          <th>Translator task count</th>
+          <th class="sort" data-sort="name">Name</th>
+          <th class="sort" data-sort="role">Role</th>
+          <th class="sort" data-sort="joined">Date joined</th>
+          <th class="sort" data-sort="login">Last login</th>
+          <th class="sort" data-sort="points">Translator points</th>
+          <th class="sort" data-sort="tasks">Translator task count</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="list">
         {% for user in users %}
           <tr>
-            <td class="align-middle"><a href="{% url 'supervisors:user_details' user.pk %}">
+            <td class="align-middle name"><a href="{% url 'supervisors:user_details' user.pk %}">
                 {% if user.is_active %}
                     {{ user.username }}
                 {% else %}
                 <em>{{ user.username }} [DISABLED]</em>
                 {% endif %}
             </td>
-            <td class="align-middle">
+            <td class="align-middle role">
                 {% if user.is_translator %}
                 Translator
                 {% else %}
                 Supervisor
                 {% endif %}
             </td>
-            <td class="align-middle">{{ user.date_joined|date }}</td>
-            <td class="align-middle">{{ user.last_login }}</td>
-            <td class="align-middle">
+            <td class="align-middle joined">{{ user.date_joined|date }}</td>
+            <td class="align-middle login">{{ user.last_login|timesince }}</td>
+            <td class="align-middle points">
                 {% if user.is_translator %}
                 {{ user.translator.points_earned }}
                 {% endif %}
             </td>
-            <td class="align-middle">
+            <td class="align-middle tasks">
                 {% if user.is_translator %}
                 {{ user.translator.translations.all.count }}
                 {% endif %}
@@ -53,4 +55,17 @@
       </tbody>
     </table>
   </div>
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+var options = {
+  valueNames: [ 'name', 'role', 'joined', 'login', 'points', 'tasks' ], page: 10, pagination: true
+};
+
+var userList = new List('users', options);
+</script>
+
 {% endblock %}

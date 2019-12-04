@@ -8,10 +8,22 @@ function rudrSwitchTab(rudr_tab_id, rudr_tab_content) {
 	document.getElementById(rudr_tab_content).style.display = 'block'; // display the content of the tab we need
 
 	// now we get all tab menu items by class names (use the next code only if you need to highlight current tab)
-	var x = document.getElementsByClassName("tabmenu");
+	var x = document.getElementsByClassName("nav-link");
 	var i;
 	for (i = 0; i < x.length; i++) {
-		x[i].className = 'tabmenu';
+		x[i].className = 'nav-link';
 	}
-	document.getElementById(rudr_tab_id).className = 'tabmenu active';
+	document.getElementById(rudr_tab_id).className = 'nav-link active';
 }
+
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      })
+
+      function select_all()  {
+         $('input[type=checkbox]').prop('checked', true);
+      }
+
+      function deselect_all()  {
+         $('input[type=checkbox]').prop('checked', false);
+      }
