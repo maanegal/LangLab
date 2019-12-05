@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags crispy_forms_filters %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:client_list' %}">Manage clients</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit client: {{client.name}}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">Edit client: {{client.name}}</h2>
+    <p>Code: {{client.code}}</p>
+    <p>Points owed: {{client.points_owed}}</p>
+  <form action="" method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'supervisors:client_details' client.pk %}" class="btn btn-outline-secondary" role="button">Cancel</a>
+
+  </form>
+{% endblock %}

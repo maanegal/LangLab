@@ -55,6 +55,7 @@ class Translator(models.Model):
 
 class Client(models.Model):
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=12, default='', unique=True)
     points_owed = models.IntegerField(default=0)
     email = models.EmailField(max_length=70, blank=True)
     website = models.URLField(blank=True)

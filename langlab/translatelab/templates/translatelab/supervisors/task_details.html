@@ -23,6 +23,9 @@
       {% if not task.time_updated == task.time_created %}
         <p>Updated at {{ task.time_updated }}</p>
       {% endif %}
+      <p><strong>Client:</strong>
+        {% if task.client %}<a href="{% url 'supervisors:client_details' task.client.pk %}">{{ task.client.name }}</a>{% else %}None attached{% endif %}
+      </p>
       <p><strong>Source language:</strong> {{ task.source_language.get_html_badge }}</p>
       <p><strong>Source text:</strong> {{ task.source_content }}</p>
       {% if task.instructions %}

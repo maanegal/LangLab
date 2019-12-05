@@ -5,7 +5,7 @@ from django.db import transaction
 from django.forms.utils import ValidationError
 
 
-from .models import (Translation, Translator, Language, User, Task)
+from .models import (Translation, Translator, Language, User, Task, Client)
 
 
 class SupervisorSignUpForm(UserCreationForm):
@@ -87,7 +87,7 @@ class TaskCreateForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ('name', 'source_content', 'priority', 'source_language', 'instructions', )
+        fields = ('name', 'client', 'source_content', 'priority', 'source_language', 'instructions', )
 
     def __init__(self, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
@@ -97,7 +97,7 @@ class TaskCreateForm(forms.ModelForm):
 class TaskUpdateForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ('name', 'source_content', 'priority', 'source_language', 'point_score')
+        fields = ('name', 'client', 'source_content', 'priority', 'source_language', 'point_score')
 
 
 class LanguageEditForm(forms.ModelForm):
@@ -113,3 +113,9 @@ class TaskSelectForm(forms.ModelForm):
         widgets = {
             'name': forms.CheckboxSelectMultiple
         }
+
+
+class ClientEditForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ('name', 'email', 'website')

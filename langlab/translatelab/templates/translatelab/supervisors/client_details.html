@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'supervisors:client_list' %}">Manage clients</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ client.name }}</li>
+    </ol>
+  </nav>
+  <h2 class="mb-3">{{ client.name }}
+    <a href="{% url 'supervisors:client_update' client.pk %}" class="btn btn-primary float-right" role="button">Edit</a>
+  </h2>
+
+    <p>Email address: {{ client.email }}</p>
+    <p>Website: <a href="{{ client.website }}">{{ client.website }}</a></p>
+
+    <p>Points owed: {{ client.points_owed }}</p>
+
+    <p><strong>Tasks ({{client.tasks.all|length}}):</strong></p><ul>
+    {% for task in client.tasks.all %}
+      <li><a href="{% url 'supervisors:task_details' task.pk %}">{{task.name}}</a></li>
+    </ul>{% endfor%}
+
+  </div>
+{% endblock %}

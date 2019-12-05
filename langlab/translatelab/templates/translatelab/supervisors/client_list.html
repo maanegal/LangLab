@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="clients">
+  <h2 class="mb-3">Manage clients
+      <a href="{% url 'supervisors:client_add' %}" class="btn btn-primary" role="button">Add client</a>
+      <span class="float-right"><input class="search form-control form-control-sm" placeholder="Filter list..." /></span>
+  </h2>
+  <div class="card">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th class="sort" data-sort="name">Name</th>
+          <th class="sort" data-sort="code">Unique code</th>
+          <th class="sort" data-sort="points">Points owed</th>
+          <th class="sort" data-sort="tasks">Tasks ordered</th>
+        </tr>
+      </thead>
+      <tbody class="list">
+        {% for client in clients %}
+          <tr>
+            <td class="align-middle name"><a href="{% url 'supervisors:client_details' client.pk %}"> {{ client.name }}</a></td>
+            <td class="align-middle code">{{client.code}}</td>
+            <td class="align-middle points">{{ client.points_owed }}</td>
+            <td class="align-middle tasks">{{client.tasks.all|length}}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="bg-light text-center font-italic" colspan="4">No clients found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+var options = {
+  valueNames: [ 'name', 'code', 'points', 'tasks' ], page: 10, pagination: true
+};
+
+var clientsList = new List('clients', options);
+</script>
+
+{% endblock %}

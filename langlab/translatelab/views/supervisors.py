@@ -8,12 +8,13 @@ from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView, UpdateView)
 from django.http import HttpResponseRedirect
 from django.db.models.functions import Lower
+from django.utils.crypto import get_random_string
 from io import TextIOWrapper
 
 from ..decorators import supervisor_required
 from ..forms import TranslationForm, SupervisorSignUpForm, TaskCreateForm, TaskUpdateForm, LanguageEditForm, \
-    TaskSelectForm
-from ..models import Translation, Task, User, Language, get_sentinel_user
+    TaskSelectForm, ClientEditForm
+from ..models import Translation, Task, User, Language, Client, get_sentinel_user
 from ..point_score import PointScore
 from ..csv_data import csv_export, csv_import
 
@@ -211,6 +212,8 @@ def task_approve(request, pk):
             validator.points_earned += points
             translator.save()
             validator.save()
+        if task.client:
+            task.client.points_owed += points
         task.approved = True
         task.save()
     return redirect('supervisors:task_details', task.pk)
@@ -428,3 +431,47 @@ def task_csv_import_register(request):
         return redirect('supervisors:task_change_list')
 
     return render(request, 'translatelab/supervisors/task_csv_import_register.html', {'tasks': tasks})
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class ClientListView(ListView):
+    model = Client
+    context_object_name = 'clients'
+    template_name = 'translatelab/supervisors/client_list.html'
+
+    def get_queryset(self):
+        queryset = Client.objects.all()
+        return queryset
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class ClientCreateView(CreateView):
+    model = Client
+    form_class = ClientEditForm
+    context_object_name = 'clients'
+    template_name = 'translatelab/supervisors/client_add.html'
+
+    def form_valid(self, form):
+        client = form.save(commit=False)
+        code = get_random_string()
+        if Client.objects.filter(code=code).exists():
+            code = get_random_string()
+        client.code = code
+        client.save()
+        return redirect('supervisors:client_details', client.pk)
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class ClientDetailsView(DetailView):
+    model = Client
+    template_name = 'translatelab/supervisors/client_details.html'
+
+
+@method_decorator([login_required, supervisor_required], name='dispatch')
+class ClientUpdateView(UpdateView):
+    model = Client
+    form_class = ClientEditForm
+    template_name = 'translatelab/supervisors/client_update_form.html'
+
+    def get_success_url(self):
+        return reverse('supervisors:client_details', kwargs={'pk': self.object.pk})

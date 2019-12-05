@@ -6,6 +6,7 @@
       <a href="{% url 'supervisors:task_add' %}" class="btn btn-primary" role="button">Add task</a>
       <a href="{% url 'supervisors:csv_export' %}" class="btn btn-primary" role="button">Export tasks</a>
       <a href="{% url 'supervisors:task_csv_import' %}" class="btn btn-primary" role="button">Import tasks</a>
+      <a href="{% url 'supervisors:client_list' %}" class="btn btn-primary" role="button">Manage clients</a>
       <a href="{% url 'supervisors:languages_edit' %}" class="btn btn-primary" role="button">Manage languages</a>
       <a href="{% url 'supervisors:user_list' %}" class="btn btn-primary" role="button">Manage users</a>
     </span>
@@ -27,18 +28,22 @@
     <table class="table mb-0">
       <thead>
         <tr>
+          <th class="sort" data-sort="client">Client</th>
           <th class="sort" data-sort="name">Task name</th>
           <th class="sort" data-sort="sourcelang">Source languages</th>
           <th class="sort" data-sort="targetlang">Target languages</th>
           <th class="sort" data-sort="time">Created</th>
           <th class="sort" data-sort="score">Points</th>
           <th class="sort" data-sort="priority">Priority</th>
-          <th class="sort" data-sort="status">Percentage completed</th>
+          <th class="sort" data-sort="status">Progress</th>
         </tr>
       </thead>
       <tbody class="list">
         {% for task in view.tasks_active %}
           <tr>
+            <td class="align-middle name">
+              {% if task.client %}<a href="{% url 'supervisors:client_details' task.client.pk %}">{{ task.client.name }}</a>{% else %}-{% endif %}
+            </td>
             <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
             <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}<br>{% endfor %}</td>
@@ -68,6 +73,7 @@
     <table class="table mb-0">
       <thead>
         <tr>
+          <th class="sort" data-sort="client">Client</th>
           <th class="sort" data-sort="name">Task name</th>
           <th class="sort" data-sort="sourcelang">Source languages</th>
           <th class="sort" data-sort="targetlang">Target languages</th>
@@ -79,9 +85,12 @@
       <tbody class="list">
         {% for task in view.tasks_awaiting %}
           <tr>
+            <td class="align-middle name">
+              {% if task.client %}<a href="{% url 'supervisors:client_details' task.client.pk %}">{{ task.client.name }}</a>{% else %}-{% endif %}
+            </td>
             <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
-            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}<br>{% endfor %}</td>
             <td class="align-middle"><strong>{{ task.owner }}</strong></td>
             <td class="align-middle">{{ task.point_score }}
             <td class="align-middle">{{ task.get_priority_display }}</td>
@@ -104,6 +113,7 @@
     <table class="table mb-0">
       <thead>
         <tr>
+          <th class="sort" data-sort="client">Client</th>
           <th class="sort" data-sort="name">Task name</th>
           <th class="sort" data-sort="sourcelang">Source languages</th>
           <th class="sort" data-sort="targetlang">Target languages</th>
@@ -115,9 +125,12 @@
       <tbody class="list">
         {% for task in view.tasks_completed %}
           <tr>
+            <td class="align-middle name">
+              {% if task.client %}<a href="{% url 'supervisors:client_details' task.client.pk %}">{{ task.client.name }}</a>{% else %}-{% endif %}
+            </td>
             <td class="align-middle name"><a href="{% url 'supervisors:task_details' task.pk %}">{{ task.name }}</a></td>
             <td class="align-middle sourcelang">{{ task.source_language.get_html_badge }}</td>
-            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}{% endfor %}</td>
+            <td class="align-middle targetlang">{% for lang in task.translations.all %}{{ lang.language.get_html_badge }}<br>{% endfor %}</td>
             <td class="align-middle"><strong>{{ task.owner }}</strong></td>
             <td class="align-middle">{{ task.point_score }}
             <td class="align-middle">{{ task.get_priority_display }}</td>
@@ -140,19 +153,19 @@
 {% block javascript %}
 <script>
 var optionsA = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time', 'score', 'priority', 'status' ], page: 6, pagination: true
+  valueNames: [ 'client', 'name', 'sourcelang', 'targetlang', 'time', 'score', 'priority', 'status' ], page: 6, pagination: true
 };
 
 var taskListA = new List('tasklist', optionsA);
 
 var optionsB = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
+  valueNames: [ 'client', 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
 };
 
 var taskListB = new List('waitlist', optionsB);
 
 var optionsC = {
-  valueNames: [ 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
+  valueNames: [ 'client', 'name', 'sourcelang', 'targetlang', 'time'], page: 6, pagination: true
 };
 
 var taskListC = new List('completelist', optionsC);
