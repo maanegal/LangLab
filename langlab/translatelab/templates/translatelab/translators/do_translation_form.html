@@ -6,12 +6,17 @@
   <h2 class="mb-3">Perform translation: {{ translation.task.name }}
       <a href="{% url 'translators:translation_cancel' translation.pk %}" class="btn btn-danger float-right" role="button">Cancel task</a>
   </h2>
-  <p class="lead">From {{ translation.task.source_language.get_html_badge }} to {{ translation.language.get_html_badge }}</p>
-  <h4>Source text:</h4> <p>{{ translation.task.source_content }}</p>
-    {% if translation.task.source_language.style_guide %}
-      <button id="source_style_guide_toggle" class="btn btn-outline-secondary">Show style guide [not implemented yet]</button>
-    {% endif %}
+  <p class="lead">From {{ translation.task.source_language.get_html_badge }} to {{ translation.language.get_html_badge }}
+    <span class="float-right">
+        {% if translation.task.source_language.style_guide %}
+          <a href="{% url 'language_style_guide' translation.task.source_language.pk %}" target="_blank" class="btn btn-outline-secondary">Style guide for {{translation.task.source_language.name }} (new tab)</a>
+        {% endif %}
+        {% if translation.language.style_guide %}
+          <a href="{% url 'language_style_guide' translation.language.pk %}" target="_blank" class="btn btn-outline-secondary">Style guide for {{translation.language.name }} (new tab)</a>
+        {% endif %}
+    </span>
   </p>
+  <h4>Source text:</h4> <p>{{ translation.task.source_content }}</p>
 
   {% if translation.task.instructions %}
     <h4>Task instructions:</h4> <p>{{ translation.task.instructions }}</p>
