@@ -100,7 +100,7 @@ class TaskListView(ListView):
     model = Task
     ordering = ('name', )
     context_object_name = 'tasks'
-    template_name = 'translatelab/supervisors/task_change_list.html'
+    template_name = 'translatelab/supervisors/task_list.html'
 
     def get_queryset(self):
         queryset = Task.objects.all().select_related('source_language', 'owner').prefetch_related('translations')
@@ -149,7 +149,7 @@ class TaskUpdateView(UpdateView):
     model = Task
     form_class = TaskUpdateForm
     context_object_name = 'task'
-    template_name = 'translatelab/supervisors/task_change_form.html'
+    template_name = 'translatelab/supervisors/task_edit_form.html'
 
     def get_context_data(self, **kwargs):
         kwargs['other_target_languages'] = Language.objects\
@@ -255,7 +255,7 @@ def translation_change(request, task_pk, translation_pk):
     else:
         form = TranslationForm(instance=translation)
 
-    return render(request, 'translatelab/supervisors/translation_change_form.html', {
+    return render(request, 'translatelab/supervisors/translation_edit_form.html', {
         'task': task,
         'translation': translation,
         'form': form,
@@ -316,7 +316,7 @@ class LanguageEditView(CreateView):
     model = Language
     form_class = LanguageEditForm
     context_object_name = 'languages'
-    template_name = 'translatelab/supervisors/language_edit_form.html'
+    template_name = 'translatelab/supervisors/language_list_add.html'
 
     def get_context_data(self, **kwargs):
         kwargs['languages'] = Language.objects.all().exclude(name='Unknown')

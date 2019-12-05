@@ -6,13 +6,11 @@ urlpatterns = [
     path('profile/', translatelab.user_profile, name='user_profile'),
     path('profile/change_password/', translatelab.user_change_password, name='user_change_password'),
     path('profile/update/', translatelab.UpdateProfile.as_view(), name='user_update_profile'),
-    path('language/style_guide/<int:pk>/', translatelab.LanguageDetailsView.as_view(), name='language_style_guide'),
+    path('languages/<int:pk>/style_guide/', translatelab.LanguageDetailsView.as_view(), name='language_style_guide'),
 
     path('translators/', include(([
         path('', translators.TaskListView.as_view(), name='task_list'),
         path('languages/', translators.TranslatorLanguagesView.as_view(), name='translator_languages'),
-        path('drafts/', translators.DraftTaskListView.as_view(), name='draft_task_list'),
-        path('completed/', translators.DoneTaskListView.as_view(), name='done_task_list'),
         path('task/<int:pk>/details/', translators.TranslationDetailsView.as_view(), name='translation_details'),
         path('task/translation/<int:pk>/', translators.translate_task, name='translate_task'),
         path('task/translation/<int:pk>/cancel', translators.translation_cancel, name='translation_cancel'),

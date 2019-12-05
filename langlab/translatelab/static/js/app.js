@@ -16,14 +16,14 @@ function rudrSwitchTab(rudr_tab_id, rudr_tab_content) {
 	document.getElementById(rudr_tab_id).className = 'nav-link active';
 }
 
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-      })
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  })
 
-      function select_all()  {
-         $('input[type=checkbox]').prop('checked', true);
-      }
+  function select_all()  {
+     $('input[type=checkbox]').prop('checked', true);
+  }
 
-      function deselect_all()  {
-         $('input[type=checkbox]').prop('checked', false);
-      }
+  function deselect_all()  {
+     $('input[type=checkbox]').prop('checked', false);
+  }

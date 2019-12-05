@@ -34,7 +34,7 @@ class TranslatorLanguagesView(UpdateView):
     model = Translator
     form_class = TranslatorLanguagesForm
     template_name = 'translatelab/translators/languages_form.html'
-    success_url = reverse_lazy('translators:task_list')
+    success_url = reverse_lazy('user_profile')
 
     def get_object(self):
         return self.request.user.translator
@@ -98,48 +98,6 @@ class TaskListView(ListView):
 
 
 @method_decorator([login_required, translator_required], name='dispatch')
-class DraftTaskListView(ListView):
-    model = Translation
-    context_object_name = 'translations'
-    template_name = 'translatelab/translators/draft_task_list.html'
-
-    def get_queryset(self):
-        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=True) \
-            .select_related('task') \
-            .order_by('task__name')
-        for t in queryset_tran:
-            t.tasktype = 'Translation'
-        queryset_val = self.request.user.translator.validated_translations.filter(translation_time_finished__isnull=True)\
-            .select_related('task') \
-            .order_by('task__name')
-        for v in queryset_val:
-            v.tasktype = 'Validation'
-        queryset = queryset_tran | queryset_val
-        return queryset
-
-
-@method_decorator([login_required, translator_required], name='dispatch')
-class DoneTaskListView(ListView):
-    model = Translation
-    context_object_name = 'translations'
-    template_name = 'translatelab/translators/done_task_list.html'
-
-    def get_queryset(self):
-        queryset_tran = self.request.user.translator.translations.filter(translation_time_finished__isnull=False) \
-            .select_related('task') \
-            .order_by('task__name')
-        for t in queryset_tran:
-            t.tasktype = 'Translation'
-        queryset_val = self.request.user.translator.validated_translations.filter(validation_time_finished__isnull=False) \
-            .select_related('task') \
-            .order_by('task__name')
-        for v in queryset_val:
-            v.tasktype = 'Validation'
-        queryset = queryset_tran | queryset_val
-        return queryset
-
-
-@method_decorator([login_required, translator_required], name='dispatch')
 class TranslationDetailsView(DetailView):
     model = Translation
     context_object_name = 'translation'
@@ -166,6 +124,7 @@ class TranslationDetailsView(DetailView):
         states = {1: 'Available', 2: 'Already assigned', 3: 'Draft', 4: 'Completed'}
         current_state = ''
 
+        # !! there's a bug in this.
         if not translation_started:
             current_state = states[1]
         elif translation_started and not translation_current_user and not translation_finished:
