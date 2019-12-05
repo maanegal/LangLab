@@ -7,7 +7,15 @@
       <li class="breadcrumb-item active" aria-current="page">Translation details: {{ translation.task.name }}</li>
     </ol>
   </nav>
-  <h2 class="mb-3">Translation details: {{ translation.task.name }}</h2>
+  <h2 class="mb-3">Translation details: {{ translation.task.name }}
+    <span class="float-right">
+      {% if not translation.translator %}
+        <a href="{% url 'translators:translate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+      {% elif not translation.validator %}
+        <a href="{% url 'translators:validate_task' translation.pk %}" class="btn btn-primary">Start task</a>
+      {% endif %}
+    </span>
+  </h2>
 
   <p class="lead">{{ current_state }}</p><hr>
 
