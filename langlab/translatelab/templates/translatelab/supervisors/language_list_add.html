@@ -41,7 +41,7 @@
             </div>
             <div class="col-2">
               {% if language.style_guide %}
-                Yes
+                <a href="{% url 'language_style_guide' language.pk %}" target="_blank">Yes (new tab)</a>
               {% else %}
                 No
               {% endif %}
